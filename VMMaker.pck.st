@@ -1,15 +1,16 @@
-'From Cuis 5.0 [latest update: #4531] on 2 March 2021 at 2:22:31 pm'!'Description VMMaker is the main package for Cuis, Squeak and Pharo for VM and VM plugin work. It can run the VM code in smalltalk, running a separate Smalltalk image. It can also translate the VM and plugins to C.
+'From Cuis 5.0 [latest update: #4526] on 22 March 2021 at 8:07:21 pm'!
+'Description VMMaker is the main package for Cuis, Squeak and Pharo for VM and VM plugin work. It can run the VM code in smalltalk, running a separate Smalltalk image. It can also translate the VM and plugins to C.
 
 This package is in Cuis .pck.st format and started from VMMaker-dtl.422.mcz from http://source.squeak.org/VMMaker.html and http://source.squeak.org/VMMaker/ as a verbatim copy, except for convertion to LF for line endings and removal of a couple of name clashes (method parameter breakCount with same name as instance variable in StackInterpreterSimulator).
 
 It is currently updated up to VMMaker-dtl.422.mcz (please keep this reference updated)'!
-!provides: 'VMMaker' 1 7!
+!provides: 'VMMaker' 1 8!
 !requires: 'Identities-UUID' 1 8 nil!
 !requires: 'Balloon' 1 4 nil!
 !requires: 'Compatibility-VMMaker' 1 1 nil!
 !requires: 'Sound' 1 23 nil!
-!requires: 'FFI' 1 33 nil!
 !requires: 'Compression' 1 27 nil!
+!requires: 'FFI' 1 33 nil!
 SystemOrganization addCategory: 'VMMaker-Building'!
 SystemOrganization addCategory: 'VMMaker-Interpreter'!
 SystemOrganization addCategory: 'VMMaker-InterpreterSimulation'!
@@ -79,16 +80,6 @@ SharedPool subclass: #VMStackFrameOffsets
 	category: 'VMMaker-Interpreter'!
 !classDefinition: 'VMStackFrameOffsets class' category: 'VMMaker-Interpreter'!
 VMStackFrameOffsets class
-	instanceVariableNames: ''!
-
-!classDefinition: #VMMakerTool category: 'VMMaker-Building'!
-Model subclass: #VMMakerTool
-	instanceVariableNames: 'vmMaker allPluginsList allPluginsSelection allPluginsSelectionsArray internalPluginsList internalPluginsSelection internalPluginsSelectionsArray externalPluginsList externalPluginsSelection externalPluginsSelectionsArray logger interpreterClassMorph platformPathMorph platformNameMorph generatedPathMorph configFileName'
-	classVariableNames: 'InterpreterTypes'
-	poolDictionaries: ''
-	category: 'VMMaker-Building'!
-!classDefinition: 'VMMakerTool class' category: 'VMMaker-Building'!
-VMMakerTool class
 	instanceVariableNames: ''!
 
 !classDefinition: #Oop category: 'VMMaker-SmartSyntaxPlugins'!
@@ -911,26 +902,6 @@ InterpreterPlugin subclass: #FFTPlugin
 FFTPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #FilePlugin category: 'VMMaker-Plugins'!
-InterpreterPlugin subclass: #FilePlugin
-	instanceVariableNames: 'sCCPfn sCDPfn sCGFTfn sCLPfn sCSFTfn sDFAfn sCDFfn sCOFfn sCRFfn sHFAfn'
-	classVariableNames: 'DirBadPath DirEntryFound DirNoMoreEntries'
-	poolDictionaries: ''
-	category: 'VMMaker-Plugins'!
-!classDefinition: 'FilePlugin class' category: 'VMMaker-Plugins'!
-FilePlugin class
-	instanceVariableNames: ''!
-
-!classDefinition: #FilePluginSimulator category: 'VMMaker-InterpreterSimulation'!
-FilePlugin subclass: #FilePluginSimulator
-	instanceVariableNames: 'openFiles states'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'FilePluginSimulator class' category: 'VMMaker-InterpreterSimulation'!
-FilePluginSimulator class
-	instanceVariableNames: ''!
-
 !classDefinition: #FloatArrayPlugin category: 'VMMaker-Plugins'!
 InterpreterPlugin subclass: #FloatArrayPlugin
 	instanceVariableNames: ''
@@ -1331,16 +1302,6 @@ SmartSyntaxInterpreterPlugin subclass: #SoundPlugin
 SoundPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #TestOSAPlugin category: 'VMMaker-Plugins'!
-SmartSyntaxInterpreterPlugin subclass: #TestOSAPlugin
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'VMMaker-Plugins'!
-!classDefinition: 'TestOSAPlugin class' category: 'VMMaker-Plugins'!
-TestOSAPlugin class
-	instanceVariableNames: ''!
-
 !classDefinition: #UUIDPlugin category: 'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #UUIDPlugin
 	instanceVariableNames: ''
@@ -1446,41 +1407,6 @@ self classPool declare: #Foo from: StackInterpreter classPool
 
 !VMStackFrameOffsets commentStamp: '<historical>' prior: 0!
 I am a shared pool for the constants that define frame layout shared between the stack interpreters and the cogit.!
-
-!VMMakerTool commentStamp: '<historical>' prior: 0!
-VMMakerTool help information
-------------------------------------
-If you really get stuck, send mail to the Squeak mailing list, squeak-dev@lists.squeakfoundation.org
-
-	VMMakerTool openInWorld
-
-What this is
---------------
-This tool is a simple interactive interface to VMMaker. You can change the directory paths for where the system looks for the platform files (those C files that are handwritten for each platform) and where it will put the assembled sources (the appropriate platform files and generated files) ready for you to compile into a new vm. You can change the platform for which it will generate files. You can choose which plugins are built and whether they are built for internal or external use. 
-
-How to use it
----------------
-To build a configuration, drag plugins from the leftmost  'Plugins not built' list to either the 'Internal Plugins' list or the 'External Plugins' list.  Plugins that cannot be built on your machine due to missing files will not be draggable.
-Once you have a configuration, you can save it for later retrieval by pressing the 'Save Configuration' button. Unsurprisingly you can reload a saved configuration with the 'Load Configuration' button.
-
-To generate an entire code tree, press the 'Generate All' button. This will process all the vm and plugin files needed for your configuration. To generate only the files for the vm and any internal plugins, use the 'Generate Core VM' button. This will be most useful if you are experimenting with the design of the vm internals or new object memory layouts etc. The 'Generate External Plugins' button will regenerate all the plugins in the External Plugins list. Note that 'excess' directories will be deleted each time you generate the vm in order to reduce potential confusion if you move a plugin from internal to external etc. If you repeatedly generate the vm only the files that appear to be out of date will be recreated; this drastically reduces the time taken if you have only changed a single plugin class for example.
-
-You can also generate internal or external plugins singly, using the menus in the lists but be warned - internal plugins are tightly related to the generated file 'vm/sqNamedPrims.h' and adding or removing an internal plugin without regenerating this (via 'Generate Core VM' or 'Generate All') will cause much grief. The application attempts to prevent this, but there are surely ways to confuse both yourself and the code. In general when writing experimental plugins it is much simpler to build them as external during the development cycle. 
-
-If the default path for the platforms code is not correct for your machine you can use the 'Find Path' button to search for a plausible directory. Note that this could take an arbitrarily long time on a machine with connections to other machines since you may end up searching all their disc space as well.
-
-You can choose from a menu of all known platforms (at least, all those known in the set of files on your machine) by using the 'Find platform' button. This is useful if you want to generate files for some other platform and feel uncertain of the exact spelling. By default the platform will be set to that upon which you are running.
-
-If you feel the need to delete all the generated files you can press the 'Clean out' button - this will recursively delete everything below the path for the generated sources.
-
-Details
--------
-You really ought to read the class comment for VMMaker. Really. Go on, do it now.
-
-Errors
--------
-A number of errors are possible, mostly relating to the two directory paths and the platform name. As much as possible these are trapped and you will see 'inform' menus to let you know. Inevitably, if you put in the effort, you will be able to confuse the tool and break it.
-!
 
 !Oop commentStamp: '<historical>' prior: 0!
 Cooercion specification for Identity coercions:
@@ -1941,12 +1867,6 @@ See also:
 		FFT pluginTransformData:
 !
 
-!FilePlugin commentStamp: 'tpr 5/5/2003 12:01' prior: 0!
-Provide access to the host machine file system. Requires both the Cross platform support files from platforms - Cross - plugins - FilePlugin (or some suitable replacement) and the platform specific fils from platforms - {your platform} - plugins - FilePlugin.!
-
-!FilePluginSimulator commentStamp: 'tpr 5/5/2003 12:02' prior: 0!
-File plugin simulation for the VM simulator!
-
 !FloatArrayPlugin commentStamp: 'tpr 5/2/2003 15:42' prior: 0!
 FloatArrayPlugin provides fast access to FloatArrays for batch processing of float numbers!
 
@@ -2330,9 +2250,6 @@ FORMAT OF SOUND DATA
 Squeak uses 16-bit signed samples encoded in the host's endian order.  A sound buffer is a sequence of "frames", or "slices", where each frame usually includes one sample per channel.  The exception is that for playback, each frame always includes 2 samples; for monaural playback, every other sample is ignored.
 !
 
-!TestOSAPlugin commentStamp: 'tpr 5/2/2003 15:51' prior: 0!
-I am the Plugin for the Squeak/Applescript Interface. Since it requires platform support it will only be built when supported on your platform!
-
 !UUIDPlugin commentStamp: 'tpr 5/2/2003 15:52' prior: 0!
 A class to generate UUID
 by John M McIntosh johnmci@smalltalkconsulting.com, since it requires platform support it will only be built when supported on your platform.
@@ -2566,1000 +2483,6 @@ initializeFrameIndices
 	FoxFrameFlags := fxFrameFlags * self bytesPerWord.
 	FoxThisContext := fxThisContext * self bytesPerWord.
 	FoxReceiver := fxReceiver * self bytesPerWord! !
-
-!VMMakerTool methodsFor: 'drag and drop' stamp: 'nk 4/5/2005 23:02'!
-acceptDroppingMorph: transferMorph event: evt inMorph: aMorph
-	"Here we are fetching information from the dropped transferMorph and performing the correct action for this drop.
-	As long as the source is part of this tool, move the dragged item from the source list to the destination list"
-
-	^self moveItem: transferMorph passenger from: transferMorph source to: aMorph! !
-
-!VMMakerTool methodsFor: 'drag and drop' stamp: 'tpr 10/12/2001 15:27'!
-dragPassengerFor: item inMorph: dragSource 
-	(dragSource isKindOf: PluggableListMorph)
-		ifFalse: [^item].
-	^item contents! !
-
-!VMMakerTool methodsFor: 'drag and drop'!
-dragTransferTypeForMorph: dragSource 
-	^(dragSource isKindOf: PluggableListMorph)
-		ifTrue: [dragSource getListSelector]! !
-
-!VMMakerTool methodsFor: 'drag and drop' stamp: 'tpr 10/21/2001 11:19'!
-moveItem: transferedMorph from: sourceListMorph to: destListMorph 
-	"As part of a drag operation we have to move the item carried by the  
-	transfer morph from a source list to a destination list"
-	"work out which list is involved and add the item to it"
-	| destlist srclist |
-
-	"no need to do anything if we drop on the same place from which we dragged" 
-	sourceListMorph = destListMorph
-		ifTrue: [^ false].
-
-	(destlist := self listForMorph: destListMorph)
-		ifNil: [^ false].
-	(srclist := self listForMorph: sourceListMorph)
-		ifNil: [^ false].
-	vmMaker
-		movePlugin: transferedMorph contents
-		from: srclist
-		to: destlist.
-	self changed: sourceListMorph getListSelector.
-	self changed: destListMorph getListSelector.
-	^ true! !
-
-!VMMakerTool methodsFor: 'drag and drop' stamp: 'nk 4/5/2005 23:14'!
-wantsDroppedMorph: transferMorph event: anEvent inMorph: destinationLM 
-	"We are only interested in TransferMorphs as wrappers for             
-	information. If their content is really interesting for us, will             
-	determined later in >>acceptDroppingMorph:event:."
-
-	"only want drops on the lists"
-
-	(transferMorph isKindOf: HandleMorph) ifTrue: [ ^false ].
-
-	(transferMorph isKindOf: TransferMorph) ifFalse: [ ^false ].
-
-	transferMorph source model = self ifFalse:[^false].
-
-	^self listMorphs includes: destinationLM! !
-
-!VMMakerTool methodsFor: 'window construction' stamp: 'dtl 5/27/2010 21:25'!
-addSecondButtonRowToWindow: sysWin startingAt: initialVerticalOffset 
-	| verticalOffset box |
-	verticalOffset := initialVerticalOffset.
-	"add a row of buttons to start up various actions"
-	box := AlignmentMorph new vResizing: #shrinkWrap;  layoutInset: 6@3; cellInset: 6@0; wrapCentering: #center.
-	box addMorph: (TextMorph new contents: 'Generate:' translated asText allBold) lock.
-	box addMorphBack: (SimpleButtonMorph new target: self;
-			 label: 'Entire';
-			 actionSelector: #generateAll;
-			 hResizing: #spaceFill;
-			 setBalloonText: 'Generate the sources for the core VM and all chosen internal and external plugins').
-	box addMorphBack: (SimpleButtonMorph new target: self;
-			 label: 'Core+Internal';
-			 actionSelector: #generateCore;
-			 hResizing: #spaceFill;
-			 setBalloonText: 'Generate the sources for the core vm and any internal plugins').
-
-	box addMorphBack: (SimpleButtonMorph new target: self;
-			 label: 'External Plugins';
-			 actionSelector: #generateExternal;
-			 hResizing: #spaceFill;
-			 setBalloonText: 'Generate the sources for all external plugins').
-	sysWin
-		addMorph: box
-		fullFrame: (LayoutFrame
-				fractions: (0 @ 0 corner: 1 @ 0)
-				offsets: (0 @ verticalOffset corner: 0 @ (verticalOffset := verticalOffset + box height - 1))).
-
-	^verticalOffset.! !
-
-!VMMakerTool methodsFor: 'window construction' stamp: 'dtl 10/24/2009 10:00'!
-addTopButtonRowToWindow: sysWin
-	| verticalOffset box |
-	verticalOffset := 0.
-
-	"add a row of buttons to start up various actions"
-	box := AlignmentMorph new vResizing: #shrinkWrap;
-				 layoutInset: 6 @ 3;
-				 cellInset: 6 @ 0;
-				 wrapCentering: #center.
-	box addMorphBack: (SimpleButtonMorph new target: self;
-			 label: 'Help';
-			 actionSelector: #helpText;
-			 hResizing: #spaceFill;
-			 setBalloonText: 'Open the help window').
-	box addMorphBack: (TextMorph new contents: 'Configuration File:' translated asText allBold) lock.	
-	box addMorphBack: (SimpleButtonMorph new target: self;
-			 label: 'Load';
-			 actionSelector: #loadConfig;
-			 hResizing: #spaceFill;
-			 setBalloonText: 'Load a previously saved configuration').
-	box addMorphBack: (SimpleButtonMorph new target: self;
-			 label: 'Save';
-			 actionSelector: #saveConfig;
-			 hResizing: #spaceFill;
-			 setBalloonText: 'Save the current configuration').
-	box addMorphBack: (SimpleButtonMorph new target: self;
-			 label: 'Rescan';
-			 actionSelector: #rescanPlugins;
-			 hResizing: #spaceFill;
-			 setBalloonText: 'Rescan image, adding any new plugins and removing those no longer available in the image').
-	sysWin
-		addMorph: box
-		fullFrame: (LayoutFrame
-				fractions: (0 @ 0 corner: 1 @ 0)
-				offsets: (0 @ verticalOffset corner: 0 @ (verticalOffset := verticalOffset + box height - 1))).
-	^ verticalOffset! !
-
-!VMMakerTool methodsFor: 'window construction' stamp: 'dtl 9/18/2016 16:35'!
-buildCenterRows
-	| rows color1 color2 labelWidth longestLabel |
-	color1 := Color blue veryMuchLighter.
-	color2 := Color green veryMuchLighter.
-	longestLabel := 'Path to generated sources:'.	"calculate labelWidth for acceptable results on varous images"
-	labelWidth := (TextMorph new contents: longestLabel translated asText allBold) width.
-	rows := Morph new color: Color transparent;
-				 layoutPolicy: TableLayout new;
-				 vResizing: #spaceFill;
-				 extent: 550 @ (TextStyle defaultFont height * 16);
-				 hResizing: #spaceFill;
-				 listDirection: #topToBottom;
-				borderStyle: (BorderStyle complexAltRaised width: 2);
-				 wrapDirection: #none;
-				 wrapCentering: #center;
-				 yourself.
-	rows
-		addMorphBack: ((self
-				entryRowWithLabel: 'Interpreter class name:'
-				labelWidth: labelWidth
-				balloonText: 'The name of the Interpreter class'
-				getFieldText: #interpreterClassName
-				setFieldText: #interpreterClassName:
-				buttonLabel: 'Select'
-				buttonAction: #interpreterListMenu
-				buttonBalloonText: 'Choose Context interpreter for the classic interpreter VM, or Stack interpreter as basis for Cog and later development')
-				color: color1).
-	interpreterClassMorph := rows submorphs last submorphs second.
-
-	rows
-		addMorphBack: ((self
-				entryRowWithLabel: 'Path to platforms code:'
-				labelWidth: labelWidth
-				balloonText: 'The directory where the platform source tree is found; can be edited in text field to the right. Default of {working directory}/src is strongly recommended'
-				getFieldText: #platformsPathText
-				setFieldText: #platformsPathText:
-				buttonLabel: 'Find path'
-				buttonAction: #findPlatformsPath
-				buttonBalloonText: 'Choose the directory where you keep the platform specific code from a file dialogue')
-				color: color2).
-	platformPathMorph := rows submorphs last submorphs second.
-
-	rows
-		addMorphBack: ((self
-				entryRowWithLabel: 'Platform name:'
-				labelWidth: labelWidth
-				balloonText: 'The platform name (as returned by Smalltalk platformName - unix, Mac OS, RISCOS, win32 etc); can be edited (in text field to the right) to cross generate'
-				getFieldText: #platformNameText
-				setFieldText: #platformNameText:
-				buttonLabel: 'Find platform'
-				buttonAction: #platformsListMenu
-				buttonBalloonText: 'Choose from a list of known platforms. The default is this current platform.')
-				color: color1).
-	platformNameMorph := rows submorphs last submorphs second.
-
-	rows
-		addMorphBack: ((self
-				entryRowWithLabel: 'Path to generated sources:'
-				labelWidth: labelWidth
-				balloonText: 'The directory where the built sources will be placed; can be edited in text field to the right. The default is strongly recommended; makefile alterations may be needed if you use a different path.'
-				getFieldText: #sourcePathText
-				setFieldText: #sourcePathText:
-				buttonLabel: 'Clean out'
-				buttonAction: #cleanoutSrcDir
-				buttonBalloonText: 'Clean out all the files in the target directory, ready for a clean build')
-				color: color2).
-	generatedPathMorph := rows submorphs last submorphs second.
-
-	^ rows! !
-
-!VMMakerTool methodsFor: 'window construction' stamp: 'nk 4/5/2005 23:05'!
-buildWindow
-	"VMMakerTool openInWorld"
-	| sysWin box verticalOffset |
-	sysWin := (SystemWindow labelled: 'VMMaker')
-				model: self.
-	verticalOffset := self addTopButtonRowToWindow: sysWin.
-	verticalOffset := self addSecondButtonRowToWindow: sysWin startingAt: verticalOffset.
-	box := self buildCenterRows.
-	sysWin
-		addMorph: box
-		fullFrame: (LayoutFrame
-				fractions: (0 @ 0 corner: 1 @ 0)
-				offsets: (0 @ verticalOffset corner: 0 @ (verticalOffset := verticalOffset + box height - 1))).
-	"Add the list of plugins that are available to build"
-	allPluginsList := (PluggableListMorph
-				on: self
-				list: #availableModules
-				selected: #currentAvailableModuleIndex
-				changeSelected: #currentAvailableModuleIndex:
-				menu: #availableListMenu:
-				keystroke: nil) enableDragNDrop.
-	allPluginsList hResizing: #spaceFill;
-		 vResizing: #spaceFill;
-		 borderWidth: 0.
-	box := AlignmentMorph newColumn.
-	box addMorphBack: (TextMorph new contents: 'Plugins not built' asText allBold;
-			 lock);
-		 setBalloonText: 'List of plugins that are available to build but not yet chosen. Drag to either other list or use menu option to move in bulk'.
-	box addMorphBack: allPluginsList.
-	sysWin
-		addMorph: box
-		fullFrame: (LayoutFrame
-				fractions: (0 @ 0 corner: 1 / 3 @ 1)
-				offsets: (0 @ verticalOffset corner: 0 @ -100)).
-	"make the list for plugins that will be built for internal linking"
-	internalPluginsList := (PluggableListMorph
-				on: self
-				list: #internalModules
-				selected: #currentInternalModuleIndex
-				changeSelected: #currentInternalModuleIndex:
-				menu: #internalListMenu:
-				keystroke: nil) enableDragNDrop.
-	internalPluginsList hResizing: #spaceFill;
-		 vResizing: #spaceFill;
-		 borderWidth: 0.
-	box := AlignmentMorph newColumn.
-	box addMorphBack: (TextMorph new contents: 'Internal Plugins' asText allBold;
-			 lock);
-		 setBalloonText: 'List of plugins chosen to be built internally'.
-	box addMorphBack: internalPluginsList.
-	sysWin
-		addMorph: box
-		fullFrame: (LayoutFrame
-				fractions: (1 / 3 @ 0 corner: 2 / 3 @ 1)
-				offsets: (0 @ verticalOffset corner: 0 @ -100)).
-	"make the list for plugins to be built externally (ie as DLLs, SO
-	or 
-	whatever suits the platform"
-	externalPluginsList := (PluggableListMorph
-				on: self
-				list: #externalModules
-				selected: #currentExternalModuleIndex
-				changeSelected: #currentExternalModuleIndex:
-				menu: #externalListMenu:
-				keystroke: nil) enableDragNDrop.
-	externalPluginsList hResizing: #spaceFill;
-		 vResizing: #spaceFill;
-		 borderWidth: 0.
-	box := AlignmentMorph newColumn.
-	box addMorphBack: (TextMorph new contents: 'External Plugins' asText allBold;
-			 lock);
-		 setBalloonText: 'List of plugins chosen to be built externally'.
-	box addMorphBack: externalPluginsList.
-	sysWin
-		addMorph: box
-		fullFrame: (LayoutFrame
-				fractions: (2 / 3 @ 0 corner: 1 @ 1)
-				offsets: (0 @ verticalOffset corner: 0 @ -100)).
-	sysWin
-		addMorph: (PluggableTextMorph
-				on: logger
-				text: nil
-				accept: nil
-				readSelection: nil
-				menu: nil)
-		fullFrame: (LayoutFrame
-				fractions: (0 @ 1 corner: 1 @ 1)
-				offsets: (0 @ -100 corner: 0 @ 0)).
-	^ sysWin! !
-
-!VMMakerTool methodsFor: 'window construction' stamp: 'dtl 11/21/2020 20:23'!
-entryRowWithLabel: label labelWidth: lWidth balloonText: balloonText getFieldText: getTextSelector setFieldText: setTextSelector buttonLabel: buttonLabel buttonAction: buttonAction buttonBalloonText: buttonBalloonText 
-	| row tm |
-	row := Morph new color: Color transparent;
-				 hResizing: #spaceFill;
-				 vResizing: #spaceFill;
-				 extent: 550 @ 40;
-				 layoutPolicy: ProportionalLayout new;
-				 borderWidth: 2;
-				 setBalloonText: balloonText translated;
-				 yourself.
-	row
-		addMorph: (TextMorph new contents: label translated asText allBold) lock
-		fullFrame: (LayoutFrame
-				fractions: (0 @ 0 corner: 0 @ 1)
-				offsets: (3 @ 3 corner: lWidth @ -3)).
-	row
-		addMorph: ((tm := PluggableTextMorph
-				on: self
-				text: getTextSelector
-				accept: setTextSelector) acceptOnCR: true)
-		fullFrame: (LayoutFrame
-				fractions: (0 @ 0 corner: 1 @ 1)
-				offsets: (lWidth + 10 @ 0 corner: (lWidth / 1.8 + 10) negated @ 0)).
-	"Make the background a solid color so that eventual bleed from the labels doesn't make the entire input field unreadable. Happens when the bold font is significantly wider than the non-bold font or when the spacing of the font doesn't match the guess above"
-	tm color: (Color gray: 0.9).
-	buttonAction
-		ifNotNil: [row
-				addMorph: (SimpleButtonMorph new target: self;
-						 label: buttonLabel translated;
-						 actionSelector: buttonAction;
-						 hResizing: #spaceFill;
-						 setBalloonText: buttonBalloonText translated)
-				fullFrame: (LayoutFrame
-						fractions: (1 @ 0 corner: 1 @ 1)
-						offsets: ((lWidth / 1.8 + 5) negated @ 3 corner: -5 @ -3))].
-	^ row! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'nk 4/5/2005 20:24'!
-availableListMenu: aMenu
-
-	aMenu addTranslatedList: #(
-			('make all external'						makeAllPluginsExternal)
-			('make all internal'						makeAllPluginsInternal)
-			('make all available'					makeAllPluginsAvailable)
-			-
-			('browse plugin' 						browseSelectedAvailablePlugin)).
-	^ aMenu! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'rww 9/25/2001 02:00'!
-browseSelectedAvailablePlugin
-
-	| plugin |
-	plugin := self availableModules at: self currentAvailableModuleIndex ifAbsent: [^self].
-	(Smalltalk classNamed: plugin) browseHierarchy! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'rww 9/25/2001 02:00'!
-browseSelectedExternalPlugin
-
-	| plugin |
-	plugin := self externalModules at: self currentExternalModuleIndex ifAbsent: [^self].
-	(Smalltalk classNamed: plugin) browseHierarchy! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'rww 9/25/2001 02:01'!
-browseSelectedInternalPlugin
-
-	| plugin |
-	plugin := self internalModules at: self currentInternalModuleIndex ifAbsent: [^self].
-	(Smalltalk classNamed: plugin) browseHierarchy! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'nk 4/5/2005 20:25'!
-externalListMenu: aMenu
-
-	aMenu addTranslatedList:#(
-			('make all external'						makeAllPluginsExternal)
-			('make all internal'						makeAllPluginsInternal)
-			('make all available'					makeAllPluginsAvailable)
-			-
-			('browse plugin' 						browseSelectedExternalPlugin)
-			-
-			('generate plugin'						generateSelectedExternalPlugin)).
-	^ aMenu! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'tpr 10/14/2001 20:11'!
-helpText
-	(StringHolder new contents: self class comment)
-		openLabel: 'VMMakerTool help'
-! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'nk 4/5/2005 20:25'!
-internalListMenu: aMenu
-
-	aMenu addTranslatedList:#(
-			('make all external'						makeAllPluginsExternal)
-			('make all internal'						makeAllPluginsInternal)
-			('make all available'					makeAllPluginsAvailable)
-			-
-			('browse plugin' 						browseSelectedInternalPlugin)
-			-
-			('generate plugin'						generateSelectedInternalPlugin)).
-	^ aMenu! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'dtl 9/18/2016 15:45'!
-interpreterListMenu
-	"create a menu of interpreter type selections. Use a list of descriptive names and
-	translate the selection to a class name appropriate for that selection. Note that this
-	is not necessarily the name of an interpreter class per se."
-
-	| choice interp |
-	choice := (PopUpMenu labelArray: InterpreterTypes
-				lines: #()) startUp.
-	choice = 0 ifTrue: [^self].
-	interp := (InterpreterTypes at: choice)
-		caseOf: {
-				[ 'Context interpreter' ] -> [ 'ContextInterpreter' ] .
-				[ 'Stack interpreter' ] -> [ 'StackInterpreterPrimitives' ]
-			}
-		otherwise: [ 'ContextInterpreter' ].
-	self interpreterClassName: interp asText! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'tpr 10/16/2001 09:58'!
-makeAllPluginsAvailable
-
-
-	vmMaker makeAllModulesAvailable! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'tpr 10/16/2001 09:58'!
-makeAllPluginsExternal
-
-
-	vmMaker makeAllModulesExternal! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'tpr 10/16/2001 09:58'!
-makeAllPluginsInternal
-
-
-	vmMaker makeAllModulesInternal! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'rww 9/25/2001 01:02'!
-perform: selector orSendTo: otherTarget
-	"Selector was just chosen from a menu by a user.  If can respond, then
-perform it on myself. If not, send it to otherTarget, presumably the
-editPane from which the menu was invoked."
-
-	(self respondsTo: selector)
-		ifTrue: [^ self perform: selector]
-		ifFalse: [^ otherTarget perform: selector]! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'tpr 5/28/2008 19:56'!
-platformNameText: aText 
-	"set the platform name - this will almost certainly mean replacing the  
-	vmMaker with one suited to the platform so we do it anyway."
-	| prevVMMaker |
-	prevVMMaker := vmMaker.
-	"make a new vmmaker and ensure I depend on it correctly"
-	vmMaker := VMMaker forPlatform: aText string.
-	vmMaker logger: logger.
-	vmMaker addDependent: self.
-	prevVMMaker removeDependent: self.
-	"configure the new vmmaker to match the old one"
-	[vmMaker loadConfiguration: prevVMMaker configurationInfo.
-	vmMaker platformDirectory]
-		on: VMMakerException
-		do: [:ex| self inform: ex messageText.
-			^ false].
-	^ true! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'nk 4/5/2005 23:05'!
-platformsListMenu
-	"create a menu of all known platforms"
-
-	| choice platnames |
-	platnames := vmMaker platformRootDirectory directoryNames 
-				copyWithoutAll: #('Cross' 'CVS' '.svn').
-	choice := (PopUpMenu labelArray: platnames
-				lines: #()) startUp.
-	choice = 0 ifTrue: [^self].
-	self platformNameText: (platnames at: choice) asText! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'nk 4/5/2005 20:27'!
-release
-	vmMaker ifNotNil: [ vmMaker removeDependent: self ].
-	super release.! !
-
-!VMMakerTool methodsFor: 'menus' stamp: 'dtl 10/23/2009 19:48'!
-rescanPlugins
-
-
-	vmMaker reinitializePluginsLists! !
-
-!VMMakerTool methodsFor: 'list access' stamp: 'tpr 10/10/2001 12:36'!
-availableListSelectionAt: index
-"return the boolean to say if the available plugin at index is selected"
-	^allPluginsSelectionsArray at: index! !
-
-!VMMakerTool methodsFor: 'list access' stamp: 'tpr 10/10/2001 12:37'!
-availableListSelectionAt: index put: bool
-"set the boolean to say if the available plugin at index is selected"
-	^allPluginsSelectionsArray at: index put: bool! !
-
-!VMMakerTool methodsFor: 'list access'!
-availableModules
-	^vmMaker availablePlugins! !
-
-!VMMakerTool methodsFor: 'list access'!
-currentAvailableModuleIndex
-	allPluginsSelection ifNil:[^0].
-	^allPluginsSelection! !
-
-!VMMakerTool methodsFor: 'list access' stamp: 'nk 12/16/2002 08:49'!
-currentAvailableModuleIndex: anInteger
-	allPluginsSelection := anInteger.
-	self changed: #currentAvailableModuleIndex! !
-
-!VMMakerTool methodsFor: 'list access'!
-currentExternalModuleIndex
-	externalPluginsSelection ifNil:[^0].
-	^externalPluginsSelection! !
-
-!VMMakerTool methodsFor: 'list access' stamp: 'nk 12/16/2002 08:49'!
-currentExternalModuleIndex: anInteger
-	externalPluginsSelection := anInteger.
-	self changed: #currentExternalModuleIndex! !
-
-!VMMakerTool methodsFor: 'list access'!
-currentInternalModuleIndex
-	internalPluginsSelection ifNil:[^0].
-	^internalPluginsSelection! !
-
-!VMMakerTool methodsFor: 'list access' stamp: 'nk 12/16/2002 08:49'!
-currentInternalModuleIndex: anInteger
-	internalPluginsSelection := anInteger.
-	self changed: #currentInternalModuleIndex! !
-
-!VMMakerTool methodsFor: 'list access' stamp: 'tpr 10/10/2001 12:36'!
-externalListSelectionAt: index
-"return the boolean to say if the external plugin at index is selected"
-	^externalPluginsSelectionsArray at: index! !
-
-!VMMakerTool methodsFor: 'list access' stamp: 'tpr 10/10/2001 12:37'!
-externalListSelectionAt: index put: bool
-"set the boolean to say if the external plugin at index is selected"
-	^externalPluginsSelectionsArray at: index put: bool! !
-
-!VMMakerTool methodsFor: 'list access'!
-externalModules
-	^vmMaker externalModules! !
-
-!VMMakerTool methodsFor: 'list access'!
-initialModules
-	^vmMaker availableModules! !
-
-!VMMakerTool methodsFor: 'list access' stamp: 'tpr 10/10/2001 12:36'!
-internalListSelectionAt: index
-"return the boolean to say if the internal plugin at index is selected"
-	^internalPluginsSelectionsArray at: index! !
-
-!VMMakerTool methodsFor: 'list access' stamp: 'tpr 10/10/2001 12:37'!
-internalListSelectionAt: index put: bool
-"set the boolean to say if the internal plugin at index is selected"
-	^internalPluginsSelectionsArray at: index put: bool! !
-
-!VMMakerTool methodsFor: 'list access'!
-internalModules
-	^vmMaker internalModules! !
-
-!VMMakerTool methodsFor: 'list access' stamp: 'tpr 10/12/2001 15:29'!
-listForMorph: aMorph
-	"work out which list is the one associated with this morph"
-	allPluginsList = aMorph ifTrue:[^allPluginsList getListSelector].
-	internalPluginsList = aMorph ifTrue:[^internalPluginsList getListSelector].
-	externalPluginsList =aMorph ifTrue:[^externalPluginsList getListSelector].
-	^nil! !
-
-!VMMakerTool methodsFor: 'list access'!
-listMorphs
-	^Array with: allPluginsList with: internalPluginsList with: externalPluginsList! !
-
-!VMMakerTool methodsFor: 'settings' stamp: 'nk 4/5/2005 23:31'!
-checkOK
-	"check as many settings as we can and report true if all seems ok"
-	(interpreterClassMorph accept; hasUnacceptedEdits) ifTrue:[^false].
-	(platformPathMorph accept; hasUnacceptedEdits) ifTrue:[^false].
-	(platformNameMorph accept; hasUnacceptedEdits) ifTrue:[^false].
-	(generatedPathMorph accept; hasUnacceptedEdits) ifTrue:[^false].
-
-	[vmMaker platformPluginsDirectory; crossPlatformPluginsDirectory]
-		on: VMMakerException
-		do: [:ex| self inform: ex messageText.
-			^ false].
-	^ true! !
-
-!VMMakerTool methodsFor: 'path access' stamp: 'tpr 3/27/2002 15:19'!
-cleanoutSrcDir
-	"remove the entire generated src tree, ready for a nice clean build"
-	vmMaker deleteEntireGeneratedTree! !
-
-!VMMakerTool methodsFor: 'path access' stamp: 'dtl 8/24/2009 07:26'!
-findPlatformsPath
-	| dir |
-	dir := self selectDirectory.
-	dir ifNil: [^nil].
-	self platformsPathText: dir pathName! !
-
-!VMMakerTool methodsFor: 'path access' stamp: 'tpr 3/12/2002 14:10'!
-findPlatformsPathFrom: fd
-	| path |
-	Utilities informUserDuring:[:bar|
-		path := self findPlatformsPathFrom: fd informing: bar.
-	].
-	^path! !
-
-!VMMakerTool methodsFor: 'path access' stamp: 'ar 3/10/2002 14:54'!
-findPlatformsPathFrom: fd informing: bar
-	| dirNames possiblePath |
-	bar value: 'Searching in ', fd pathName.
-	dirNames := fd directoryNames.
-	(dirNames includes: 'platforms') ifTrue:[
-		possiblePath := fd pathName, fd pathNameDelimiter asString, 'platforms'.
-		(self confirm: 'Found a platforms directory at
-', possiblePath,'
-Do you want me to use it?') ifTrue:[^possiblePath].
-	].
-	dirNames do:[:dd|
-		possiblePath := self findPlatformsPathFrom: (fd directoryNamed: dd) informing: bar.
-		possiblePath ifNotNil:[^possiblePath].
-	].
-	^nil! !
-
-!VMMakerTool methodsFor: 'path access' stamp: 'svp 11/14/2002 21:11'!
-interpreterClassName
-	"return a Text for the path to the generated sources"
-	^[vmMaker interpreterClass name asString] 
-		on: VMMakerException 
-		do:[:ex| ex return:'<invalid class>'].! !
-
-!VMMakerTool methodsFor: 'path access' stamp: 'dtl 9/18/2016 16:23'!
-interpreterClassName: aText
-	"set the interpreter class name"
-
-	[vmMaker interpreterClassName: aText asString.
-	self changed: #interpreterClassName] 
-		on: VMMakerException 
-		do: [:ex| self inform:ex messageText. 
-			^false].
-	^true! !
-
-!VMMakerTool methodsFor: 'path access'!
-platformNameText
-	"return a Text for the platform name"
-	^vmMaker platformName asText! !
-
-!VMMakerTool methodsFor: 'path access' stamp: 'tpr 10/21/2001 11:24'!
-platformsPathText
-	"return a Text for the path to the platform sources"
-	[^vmMaker platformRootDirectory fullName asText] on: VMMakerException do:[^'Problem with directory name for platform code: enter correct path or consult help text' asText]! !
-
-!VMMakerTool methodsFor: 'path access' stamp: 'tpr 5/28/2008 19:55'!
-platformsPathText: aText
-	"set the path to the platform sources"
-	[^vmMaker platformRootDirectoryName: aText asString] on: VMMakerException do:[:ex| self inform:'Problem with this directory name; check the path settings, permissions or spelling?'. ex return: false]! !
-
-!VMMakerTool methodsFor: 'path access' stamp: 'dtl 8/24/2009 07:25'!
-selectDirectory
-	"Newer images should use UIManager, but UIManager is not available on
-	older images. Provide backward compatibility."
-
-	(Smalltalk hasClassNamed: #UIManager)
-		ifTrue: [^(Smalltalk at: #UIManager) default perform: #chooseDirectory]
-		ifFalse: [^(Smalltalk at: #FileList2) perform: #modalFolderSelector].
-	self error: 'directory selector dialog not available'! !
-
-!VMMakerTool methodsFor: 'path access' stamp: 'ar 5/4/2002 21:06'!
-sourcePathText
-	"return a Text for the path to the generated sources"
-	^[vmMaker sourceDirectory fullName asText] 
-		on: VMMakerException 
-		do:[:ex| ex return:'<path not valid>'].! !
-
-!VMMakerTool methodsFor: 'path access'!
-sourcePathText: aText
-	"set the path to the generated sources"
-	^vmMaker sourceDirectoryName: aText asString! !
-
-!VMMakerTool methodsFor: 'configurations' stamp: 'dtl 12/17/2010 14:24'!
-configFileName
-	"Answer the full path to the most recently loaded configuration file, or a default if
-	no configuration file was previously loaded."
-
-	^ configFileName
-		ifNil: [configFileName := FileDirectory default pathName , FileDirectory slash , 'vmmaker.config']! !
-
-!VMMakerTool methodsFor: 'configurations' stamp: 'dtl 12/19/2010 22:50'!
-loadConfig
-
-	((Smalltalk hasClassNamed: #UIManager)
-			ifTrue: [ "Newer images use UIManager"
-				(Smalltalk at: #UIManager) default
-						chooseFileMatching: #('config' )
-						label: 'Select VMMaker configuration...']
-			ifFalse: [ "UIManager not present, use original StandardFileMenu implementation "
-				(((Smalltalk at: #StandardFileMenu)
-						oldFileMenu: FileDirectory default
-						withPattern: '*.config')
-						startUpWithCaption: 'Select VMMaker configuration...')
-					ifNotNilDo: [ :fileResult | fileResult directory fullNameFor: fileResult name]])
-		ifNotNilDo: [ :file |
-			[vmMaker := VMMaker forConfigurationFile: file.
-			vmMaker logger: logger.
-			vmMaker platformDirectory]
-				on: Error
-				do: [self inform: 'Possible problem with path settings or platform name?'].
-			configFileName := file. "set default config file name to the most recently loaded file"
-			self updateAllViews]! !
-
-!VMMakerTool methodsFor: 'configurations' stamp: 'dtl 12/21/2010 10:59'!
-saveConfig
-	"write info about the current configuration to a file."
-
-	((Smalltalk hasClassNamed: #UIManager)
-		ifTrue: [ "Newer images use UIManager"
-			((Smalltalk at: #UIManager) default
-					request: 'Save VMMaker configuration...'
-					initialAnswer: self configFileName)
-				ifNotNilDo: [:f | | file path |
-					('*.config' match: f)
-						ifTrue: [file := f]
-						ifFalse: [file := f , '.config'].
-					"If path is not valid, the image has probably been moved to a new location or
-					to a different platform. Assume this is the case, and change the path to the
-					current default."
-					path := file copyUpToLast: FileDirectory pathNameDelimiter.
-					(FileDirectory default directoryExists: path)
-						ifTrue: [file]
-						ifFalse: [file copyReplaceAll: path with: FileDirectory default pathName]]]
-		ifFalse: [ "UIManager not present, use original StandardFileMenu implementation"
-			(((Smalltalk at: #StandardFileMenu)
-						newFileMenu: FileDirectory default
-						withPattern: '*.config')
-						startUpWithCaption: 'Save VMMaker configuration...')
-				ifNotNilDo: [ :fileResult |
-					('*.config' match: fileResult name)
-						ifFalse: [fileResult name: fileResult name , '.config'].
-								fileResult directory fullNameFor: fileResult name]])
-		ifNotNilDo: [ :file |
-			vmMaker saveConfigurationTo: file.
-			configFileName := file]! !
-
-!VMMakerTool methodsFor: 'initialisation' stamp: 'dtl 7/23/2012 19:42'!
-configuration: aSpec
-	vmMaker loadConfiguration: aSpec! !
-
-!VMMakerTool methodsFor: 'initialisation' stamp: 'ar 3/10/2002 15:09'!
-initialExtent
- 	^600@450! !
-
-!VMMakerTool methodsFor: 'initialisation' stamp: 'ar 3/10/2002 15:06'!
-initialize
-	logger := TranscriptStream new.
-	vmMaker := VMMaker default.
-	vmMaker logger: logger.
-	vmMaker addDependent: self.
-	allPluginsSelectionsArray := Array new: self availableModules size withAll: false.
-	internalPluginsSelectionsArray := Array new.
-	externalPluginsSelectionsArray := Array new.! !
-
-!VMMakerTool methodsFor: 'initialisation' stamp: 'tpr 10/12/2001 18:06'!
-update: anObject 
-	"some related object has changed. Try to handle it"
-	anObject == #reinitialize ifTrue: [self updateAllViews]! !
-
-!VMMakerTool methodsFor: 'initialisation' stamp: 'dtl 9/18/2016 16:14'!
-updateAllViews
-	self changed: #interpreterClassName;
-		changed: #platformsPathText;
-		changed: #platformNameText;
-		changed: #sourcePathText;
-		changed: #availableModules;
-		changed: #internalModules;
-		changed: #externalModules! !
-
-!VMMakerTool methodsFor: 'generate sources' stamp: 'tpr 10/21/2001 11:00'!
-generateAll
-	"tell the vmMaker to build all the sources"
-	self checkOK
-		ifTrue: [[vmMaker generateEntire]
-				on: VMMakerException
-				do: [:ex| self inform: ex messageText]]! !
-
-!VMMakerTool methodsFor: 'generate sources' stamp: 'tpr 10/21/2001 11:01'!
-generateCore
-	"tell the vmMaker to build all the core vm sources"
-	self checkOK
-		ifTrue: [[vmMaker generateMainVM]
-		on: VMMakerException
-		do: [:ex| self inform: ex messageText]]! !
-
-!VMMakerTool methodsFor: 'generate sources' stamp: 'tpr 10/21/2001 11:02'!
-generateExternal
-	"tell the vmMaker to build all the externally linked plugin sources"
-	self checkOK
-		ifTrue: [[vmMaker generateExternalPlugins]
-		on: VMMakerException
-		do: [:ex | self inform: ex messageText]]! !
-
-!VMMakerTool methodsFor: 'generate sources' stamp: 'tpr 10/21/2001 11:03'!
-generateSelectedExternalPlugin
-
-	| plugin |
-	plugin := self externalModules at: self currentExternalModuleIndex ifAbsent: [^self].
-	self checkOK
-		ifTrue: [[vmMaker generateExternalPlugin: plugin]
-		on: VMMakerException
-		do: [:ex| self inform: ex messageText]]
-! !
-
-!VMMakerTool methodsFor: 'generate sources' stamp: 'tpr 10/21/2001 11:03'!
-generateSelectedInternalPlugin
-
-	| plugin |
-	plugin := self internalModules at: self currentInternalModuleIndex ifAbsent: [^self].
-	self checkOK
-		ifTrue: [[vmMaker generateInternalPlugin: plugin]
-		on: VMMakerException
-		do: [:ex| self inform: ex messageText]]
-! !
-
-!VMMakerTool methodsFor: 'generate sources' stamp: 'tpr 5/28/2008 19:39'!
-inform: aProblemString
-"log the problem in the transcript window"
-	logger show: aProblemString; cr! !
-
-!VMMakerTool methodsFor: 'model access' stamp: 'dtl 7/23/2012 20:03'!
-vmMaker
-	^vmMaker! !
-
-!VMMakerTool class methodsFor: 'configurations' stamp: 'dtl 5/14/2016 11:35'!
-defaultUnixSpec
-	"Typical VMMaker spec for a unix/linux target platform"
-
-	"VMMakerTool defaultUnixSpec"
-
-	^#(
-		#(	"internal plugins"
-			#ADPCMCodecPlugin
-			#AsynchFilePlugin
-			#BMPReadWriterPlugin
-			#BalloonEnginePlugin
-			#BitBltSimulation
-			#CroquetPlugin
-			#DESPlugin
-			#DSAPlugin
-			#DeflatePlugin
-			#DropPlugin
-			#FFTPlugin
-			#FilePlugin
-			#FloatArrayPlugin
-			#FloatMathPlugin
-			#GeniePlugin
-			#JPEGReadWriter2Plugin
-			#JPEGReaderPlugin
-			#JoystickTabletPlugin
-			#KlattSynthesizerPlugin
-			#LargeIntegersPlugin
-			#LocalePlugin
-			#MD5Plugin
-			#Matrix2x3Plugin
-			#MiscPrimitivePlugin
-			#RandPlugin
-			#RePlugin
-			#SHA256Plugin
-			#SecurityPlugin
-			#SerialPlugin
-			#SlangTestPlugin
-			#SlangTestSupportPlugin
-			#SocketPlugin
-			#SoundCodecPlugin
-			#SoundGenerationPlugin
-			#SoundPlugin
-			#StarSqueakPlugin
-			#SurfacePlugin
-		)
-		#(	"external plugins"
-			#B3DAcceleratorPlugin
-			#B3DEnginePlugin
-			#ClipboardExtendedPlugin
-			#DBusPlugin
-			#FFIPlugin
-			#FileCopyPlugin
-			#FT2Plugin
-			#GStreamerPlugin
-			#HostWindowPlugin
-			#ImmX11Plugin
-			#KedamaPlugin2
-			#MIDIPlugin
-			#Mpeg3Plugin
-			#RomePlugin
-			#UUIDPlugin
-			#UnixAioPlugin
-			#UnixOSProcessPlugin
-			#XDisplayControlPlugin
-			#CameraPlugin
-			#ScratchPlugin
-			#UnicodePlugin
-			#WeDoPlugin
-			#SqueakSSLPlugin
-		)
-		true			"inline flag"
-		false			"forBrowser flag"
-		'unix'			"platform"
-		'src'			"source directory for generated sources"
-		'platforms'		"path to platform sources"
-		4				"unused, was bytesPerWord which is now a compile time definition"
-		true			"unused, was flag for source directtory pathname is relative"
-		true			"unused, was flag for platforms directory path is relative"
-		'ContextInterpreter'	"interpreter class name"
-	)! !
-
-!VMMakerTool class methodsFor: 'configurations' stamp: 'dtl 4/22/2016 23:14'!
-minimalSpec
-	"VMMaker spec for a minimal VM"
-
-	"VMMakerTool minimalSpec"
-
-	^#(
-		#(	"internal plugins required for a minimum usable VM"
-			#BitBltSimulation
-			#BalloonEnginePlugin
-			#FilePlugin
-		)
-		#(	"external plugins not strictly required"
-			#SocketPlugin
-		)
-		true			"inline flag"
-		false			"forBrowser flag"
-		nil				"platform (unspecified)"
-		'src'			"source directory for generated sources"
-		'platforms'		"path to platform sources"
-		4				"unused, was bytesPerWord which is now a compile time definition"
-		true			"unused, was flag for source directtory pathname is relative"
-		true			"unused, was flag for platforms directory path is relative"
-		'ContextInterpreter'	"interpreter class name"
-	)! !
-
-!VMMakerTool class methodsFor: 'instance creation' stamp: 'dtl 7/23/2012 20:04'!
-forUnix
-	"Open a VMMakerTool with a configuration suitable for a typical unix platform"
-	
-	"VMMakerTool forUnix"
-
-	| vmm |
-	vmm := self new configuration: VMMakerTool defaultUnixSpec.
-	vmm buildWindow openInWorld.
-	^vmm! !
-
-!VMMakerTool class methodsFor: 'instance creation' stamp: 'dtl 7/23/2012 20:01'!
-minimal
-	"Open a VMMakerTool with a configuration suitable for building a VM with minimal plugin support"
-	
-	"VMMakerTool minimal"
-
-	| vmm |
-	vmm := self new configuration: VMMakerTool minimalSpec.
-	vmm buildWindow openInWorld.
-	^vmm! !
-
-!VMMakerTool class methodsFor: 'instance creation' stamp: 'dtl 7/23/2012 20:08'!
-openInWorld
-	"Build a VMMakerTool and open it"
-
-	"VMMakerTool openInWorld"
-
-	^self minimal! !
-
-!VMMakerTool class methodsFor: 'class initialization' stamp: 'dtl 9/18/2016 15:29'!
-initialize
-
-	self initializeInterpreterTypes.
-	Smalltalk at: #TheWorldMenu ifPresent: [ :class |
-		class class methodDict at: #registerOpenCommand: ifPresent: [ :method |
-			(method hasLiteral: #deprecated:) "n.b.  use #hasLiteral: rather than #sendsSelector: for Squeak 3.8"
-				ifFalse: [ class registerOpenCommand: (Array with: 'VMMaker' with: (Array with: self with: #openInWorld)) ] ] ]! !
-
-!VMMakerTool class methodsFor: 'class initialization' stamp: 'dtl 9/18/2016 15:29'!
-initializeInterpreterTypes
-	"The list of supported interpreter types that will be presented as menu options.
-	Context interpreter is the traditional Squeak interpreter VM. Stack interpreter is
-	the newer stack interpreter that provides a basis for Cog and Spur developement.
-	Other selections may be added to specify e.g. a Cog VM."
-
-	InterpreterTypes := #( 'Context interpreter' 'Stack interpreter' )! !
-
-!VMMakerTool class methodsFor: 'world menu' stamp: 'tbn 5/25/2010 18:58'!
-menuCommandOn: aBuilder 
-	<worldMenu> 
-	(aBuilder item: #'VMMaker')
-		parent: #Tools;
-		action:[self openInWorld]! !
-
-!VMMakerTool class methodsFor: 'unloading' stamp: 'dtl 2/3/2012 22:04'!
-unload
-	Smalltalk at: #TheWorldMenu ifPresent: [ :class |
-		class class methodDict at: #unregisterOpenCommandWithReceiver: ifPresent: [ :method |
-			(method hasLiteral: #deprecated:) 
-				ifFalse: [ class unregisterOpenCommandWithReceiver: self ] ] ]! !
 
 !Oop class methodsFor: 'plugin generation' stamp: 'eem 10/2/2010 14:12'!
 ccg: cg generateCoerceToOopFrom: aNode on: aStream
@@ -4048,7 +2971,7 @@ validatePlugin:	plName in: listOfPlugins
 
 	^plugin! !
 
-!VMMaker methodsFor: 'objects from disk' stamp: 'dtl 4/19/2011 08:13'!
+!VMMaker methodsFor: 'objects from disk' stamp: 'jmv 3/4/2021 15:12:25'!
 configurationInfo
 	"build a simple Array of the configuration information that would be 
 	 usefully saved for later reloading:- 
@@ -4060,10 +2983,10 @@ configurationInfo
 		two flags indicating whether each directory is relative to the current directory or not.
 		the interpreter class name"
 	| isRelative makeRelative |
-	isRelative := [:pn| pn beginsWith: FileDirectory default pathName].
+	isRelative := [:pn| pn beginsWith: DirectoryEntry currentDirectory pathName].
 	makeRelative := [:pn|
 					(isRelative value: pn)
-						ifTrue: [pn allButFirst: FileDirectory default pathName size + 1]
+						ifTrue: [pn allButFirst: DirectoryEntry currentDirectory pathName size + 1]
 						ifFalse: [pn]].
 	^{ internalPlugins asArray.
 		externalPlugins asArray.
@@ -4109,26 +3032,12 @@ readConfigurationFrom: aFileName
 	fileStream := FileStream oldFileNamed: aFileName.
 	^fileStream fileInObjectAndCode! !
 
-!VMMaker methodsFor: 'objects from disk' stamp: 'eem 5/17/2011 12:21'!
-saveConfigurationTo: aFile
-	"Write info about the current configuration to a file.
-	 Use a hack CrForSpaceWriteStream so that things
-	 appear on separate lines to be friendly to configuration
-	 management systems diffing facilities."
-	| stream |
-	stream := CrForSpaceWriteStream on: String new.
-	self configurationInfo storeOn: stream.
-	(MultiByteFileStream newFileNamed: aFile)
-		lineEndConvention: #lf;
-		nextPutAll: stream contents;
-		close! !
-
-!VMMaker methodsFor: 'private - copying files' stamp: 'ar 4/7/2002 15:59'!
+!VMMaker methodsFor: 'private - copying files' stamp: 'jmv 3/4/2021 15:14:01'!
 copyFileNamed: srcName to: dstName 
 	| dstEntry srcEntry |
-	dstEntry := FileDirectory directoryEntryFor: dstName.
+	dstEntry := DirectoryEntry currentDirectory directoryEntryFor: dstName.
 	dstEntry ifNotNil:[
-		srcEntry := FileDirectory directoryEntryFor: srcName.
+		srcEntry := DirectoryEntry currentDirectory directoryEntryFor: srcName.
 		srcEntry ifNil:[^self couldNotOpenFile: srcName].
 		dstEntry modificationTime >= srcEntry modificationTime ifTrue:[^self].
 	].
@@ -4287,20 +3196,20 @@ makefileDirectory
 "where to put generated makefile related files"
 	^self sourceDirectory! !
 
-!VMMaker methodsFor: 'target directories' stamp: 'dtl 5/27/2010 21:11'!
+!VMMaker methodsFor: 'target directories' stamp: 'jmv 3/4/2021 15:12:37'!
 sourceDirectory
 	| fd |
-	fd := FileDirectory default
+	fd := DirectoryEntry currentDirectory
 				directoryNamed: (sourceDirName
 						ifNil: [self class sourceDirName]).
 	fd assureExistence.
 	^ fd! !
 
-!VMMaker methodsFor: 'target directories' stamp: 'tpr 2/14/2002 14:27'!
+!VMMaker methodsFor: 'target directories' stamp: 'jmv 3/4/2021 15:14:08'!
 sourceDirectoryName: aString
 	"Sanity check really ought to be added, This is the root directory for where the sources will be WRITTEN"
 	sourceDirName := aString.
-	(FileDirectory on: aString) assureExistence.
+	(DirectoryEntry on: aString) assureExistence.
 	self changed: #sourceDirectory.
 	^true! !
 
@@ -4479,25 +3388,25 @@ platformPluginsDirectory
 					^self couldNotFindPlatformDirectoryFor: 'any plugins needing ', self platformName].
 	^self platformDirectory directoryNamed: self class pluginsDirName! !
 
-!VMMaker methodsFor: 'source directories' stamp: 'tpr 1/9/2002 20:33'!
+!VMMaker methodsFor: 'source directories' stamp: 'jmv 3/4/2021 15:12:31'!
 platformRootDirectory
 	"return the directory where we should find all platform's sources"
-	(FileDirectory default
+	(DirectoryEntry currentDirectory
 			directoryExists: (platformRootDirName
 					ifNil: [self class platformsDirName]))
 		ifFalse: ["The supposed directory for the platforms code does not  
 			exist."
 			^ self couldNotFindDirectory: 'the platform code tree'].
-	^ FileDirectory default
+	^ DirectoryEntry currentDirectory
 		directoryNamed: (platformRootDirName
 				ifNil: [self class platformsDirName])! !
 
-!VMMaker methodsFor: 'source directories' stamp: 'tpr 1/9/2002 20:28'!
+!VMMaker methodsFor: 'source directories' stamp: 'jmv 3/4/2021 15:12:34'!
 platformRootDirectoryName: aString
 	"set the directory where we should find all platform's sources
 	There really ought to be plausible sanity checks done here"
 	platformRootDirName := aString.
-	(FileDirectory default directoryExists: aString) ifFalse:[self couldNotFindDirectory: aString. ^false].
+	(DirectoryEntry currentDirectory directoryExists: aString) ifFalse:[self couldNotFindDirectory: aString. ^false].
 	self reinitializePluginsLists.
 	^true! !
 
@@ -17041,54 +15950,20 @@ emitVmmVersionOn: aStream
 		cr
 ! !
 
-!CCodeGenerator methodsFor: 'C code generator' stamp: 'eem 1/3/2013 13:47'!
+!CCodeGenerator methodsFor: 'C code generator' stamp: 'jmv 3/4/2021 16:01:06'!
 fileHeaderVersionStampForSourceClass: sourceClass
 	"Answer a suitable version stamp to include in the header."
-	| exportBuildInfo slangDescription sourceDescription |
-	[exportBuildInfo := sourceClass isInterpreterClass
-						ifTrue: ['char *__interpBuildInfo = __buildInfo;']
-						ifFalse:
-							[sourceClass isCogitClass
-								ifTrue: ['char *__cogitBuildInfo = __buildInfo;']
-								ifFalse:
-									[sourceClass isPluginClass ifTrue:
-										[sourceClass exportBuildInfoOrNil]]]]
-		on: MessageNotUnderstood
-		do: [:ex| ex resume: false].
-	[slangDescription := self class monticelloDescriptionFor: self class.
+	| slangDescription sourceDescription |
+	slangDescription := 'PluginMaker (VMMaker)'.
 	 sourceClass ifNotNil:
-		[sourceDescription := [sourceClass monticelloDescription]
-								on: MessageNotUnderstood
-								do: [:ex| self class monticelloDescriptionFor: sourceClass]]]
-		on: Error
-		do: [:ex| | now |
-			now := Time dateAndTimeNow printString.
-			^String streamContents:
-				[:s|
-				s nextPutAll: '/* Automatically generated from Squeak on '.
-				s nextPutAll: now.
-				s nextPutAll: ' */'; cr; cr.
-				s nextPutAll: 'static char __buildInfo[] = "Generated on '.
-				s nextPutAll: now.
-				s nextPutAll: '. Compiled on "'.
-				s nextPutAll: '__DATE__ ;'; cr.
-				exportBuildInfo ifNotNil:
-					[s nextPutAll: exportBuildInfo; cr].
-				s cr]].
+		[sourceDescription := sourceClass name].
 	^String streamContents:
 		[:s|
-		s nextPutAll: '/* Automatically generated by\	' withCRs.
+		s nextPutAll: '/* Automatically generated by '.
 		s nextPutAll: slangDescription.
 		sourceDescription ifNotNil:
-			[s nextPutAll: '\   from\	' withCRs; nextPutAll: (sourceDescription copyReplaceAll: '\' withCRs with: '\	' withCRs)].
-		s cr; nextPutAll: ' */'; cr.
-		sourceDescription ifNotNil:
-			[s nextPutAll: 'static char __buildInfo[] = "'.
-			 s nextPutAll: (sourceDescription copyReplaceAll: '\' withCRs with: '\n\', '\' withCRs).
-			 s nextPutAll: ' " __DATE__ ;'; cr.
-			exportBuildInfo ifNotNil:
-				[s nextPutAll: exportBuildInfo; cr].
-			s cr]]! !
+			[s nextPutAll: ' from 	'; nextPutAll: sourceDescription ].
+		s nextPutAll: ' */' ]! !
 
 !CCodeGenerator methodsFor: 'C code generator' stamp: 'ar 7/8/2003 11:04'!
 isCLiteral: anObject
@@ -17117,16 +15992,16 @@ isTypePointerToStruct: type "<String>"
 	^vmClass notNil
 	  and: [vmClass isTypePointerToStruct: type]! !
 
-!CCodeGenerator methodsFor: 'C code generator' stamp: 'eem 3/19/2009 10:53'!
+!CCodeGenerator methodsFor: 'C code generator' stamp: 'jmv 3/4/2021 15:05:32'!
 needToGenerateHeader: headerName file: interpHdrPath contents: newContentsArg
 	"Check if we need to regenerate a header file.  We always need to if the contents have changed.
 	 But if not we can avoid needless recompilations by not regenerating.  So only regenerate if the
 	 package is clean (version doesn't include a '*').  If we can't find a package version ask the user."
 	| newContents oldContents |
-	(FileDirectory default fileExists: interpHdrPath) ifFalse:
+	(DirectoryEntry currentDirectory fileExists: interpHdrPath) ifFalse:
 		[^true].
 	newContents := newContentsArg.
-	oldContents := (FileDirectory default oldFileNamed: interpHdrPath) contentsOfEntireFile.
+	oldContents := (DirectoryEntry currentDirectory oldFileNamed: interpHdrPath) contentsOfEntireFile.
 	(newContents beginsWith: '/*') = (oldContents beginsWith: '/*') ifFalse:
 		[(newContents beginsWith: '/*') ifTrue:
 			[newContents := newContents readStream upToAll: '*/'; skipSeparators; upToEnd].
@@ -17188,15 +16063,6 @@ selectorReturnsStruct: selector "<Symbol>"
 						[apiMethods ifNotNil:
 							[apiMethods at: selector ifAbsent: []]]) notNil
 	  and: [VMStructType isTypeStruct: tMethod returnType]! !
-
-!CCodeGenerator methodsFor: 'C code generator' stamp: 'eem 2/10/2009 15:05'!
-shortMonticelloDescriptionForClass: aClass
-	"Answer a suitable Monticello package stamp to include in a moduleName."
-	| mdesc |
-	mdesc := [self monticelloDescriptionFor: aClass]
-				on: Error
-				do: [:ex| ^' ', Date today asString].
-	^mdesc copyFrom: 1 to: (mdesc indexOfSubCollection: ' uuid:') - 1! !
 
 !CCodeGenerator methodsFor: 'C code generator' stamp: 'eem 12/11/2010 12:33'!
 structTargetKindForVariableName: varName "<String>"
@@ -18940,16 +17806,6 @@ initialize
 		"If UseRightShiftForDivide is true, the translator will generate a right-shift when it encounters a division by a constant that is a small power of two. For example, 'x / 8' will generate '((int) x >> 3)'. The coercion to int is done to make it clear that the C compiler should generate a signed shift."
 		"Note: The Kernighan and Ritchie 2nd Edition C manual, p. 49, leaves the semantics of right-shifting a negative number open to the discretion of the compiler implementor. However, it strongly suggests that most compilers should generate an arithmetic right shift (i.e., shifting in the sign bit), which is the same as dividing by a power of two. If your compiler does not generate or simulate an arithmetic shift, then make this class variable false and re-translate."
 ! !
-
-!CCodeGenerator class methodsFor: 'C code generator' stamp: 'eem 2/9/2009 22:44'!
-monticelloDescriptionFor: aClass
-	"Answer a suitable Monticello package stamp to include in the header."
-	| pkgInfo pkg uuid |
-	pkgInfo := PackageOrganizer default packageOfClass: aClass.
-	pkg := MCWorkingCopy allManagers detect: [:ea| ea packageName = pkgInfo packageName].
-	pkg ancestry ancestors isEmpty ifFalse:
-		[uuid := pkg ancestry ancestors first id].
-	^aClass name, (pkg modified ifTrue: [' * '] ifFalse: [' ']), pkg ancestry ancestorString, ' uuid: ', uuid asString! !
 
 !CCodeGenerator class methodsFor: 'removing from system' stamp: 'jm 5/16/1998 10:26'!
 removeCompilerMethods
@@ -36884,27 +35740,6 @@ unableToReadImageError
 byteCountText
 	^ byteCount printString asText! !
 
-!InterpreterSimulator methodsFor: 'UI' stamp: 'di 4/21/2004 00:31'!
-openAsMorph
-	"Open a morphic view on this simulation."
-	| window localImageName |
-	localImageName := FileDirectory default localNameFor: imageName.
-	window := (SystemWindow labelled: 'Simulation of ' , localImageName) model: self.
-
-	window addMorph: (displayView := ImageMorph new image: displayForm)
-		frame: (0@0 corner: 1@0.8).
-
-	transcript := TranscriptStream on: (String new: 10000).
-	window addMorph: (PluggableTextMorph on: transcript text: nil accept: nil
-			readSelection: nil menu: #codePaneMenu:shifted:)
-		frame: (0@0.8 corner: 0.7@1).
-
-	window addMorph: (PluggableTextMorph on: self
-						text: #byteCountText accept: nil) hideScrollBarIndefinitely
-		frame: (0.7@0.8 corner: 1@1).
-
-	window openInWorld! !
-
 !InterpreterSimulator methodsFor: 'memory access' stamp: 'dtl 2/18/2012 08:44'!
 bytesPerWord
 	^bytesPerWord! !
@@ -37542,7 +36377,7 @@ makeDirEntryName: entryName size: entryNameSize
 	^ results
 ! !
 
-!InterpreterSimulator methodsFor: 'file primitives' stamp: 'dtl 3/28/2015 17:44'!
+!InterpreterSimulator methodsFor: 'file primitives' stamp: 'jmv 3/4/2021 15:11:34'!
 primitiveDirectoryEntry
 	| name pathName array result |
 	name := self stringOf: self stackTop.
@@ -37551,7 +36386,7 @@ primitiveDirectoryEntry
 	self successful ifFalse:
 		[^self primitiveFail].
 
-	array := FileDirectory default primLookupEntryIn: pathName name: name.
+	array := DirectoryEntry currentDirectory primLookupEntryIn: pathName name: name.
 	array == nil ifTrue:
 		[self pop: 3 thenPush: objectMemory nilObj.
 		^array].
@@ -37568,7 +36403,7 @@ primitiveDirectoryEntry
 	self pop: 3.
 	self push: result! !
 
-!InterpreterSimulator methodsFor: 'file primitives' stamp: 'dtl 3/28/2015 19:01'!
+!InterpreterSimulator methodsFor: 'file primitives' stamp: 'jmv 3/4/2021 15:11:39'!
 primitiveDirectoryLookup
 	| index pathName array result |
 	index := self stackIntegerValue: 0.
@@ -37578,7 +36413,7 @@ primitiveDirectoryLookup
 		^self primitiveFail.
 	].
 
-	array := FileDirectory default primLookupEntryIn: pathName index: index.
+	array := DirectoryEntry currentDirectory primLookupEntryIn: pathName index: index.
 
 	array == nil ifTrue: [
 		self pop: 3.
@@ -37596,14 +36431,14 @@ primitiveDirectoryLookup
 	self push: result.
 ! !
 
-!InterpreterSimulator methodsFor: 'file primitives' stamp: 'dtl 1/22/2012 21:12'!
+!InterpreterSimulator methodsFor: 'file primitives' stamp: 'jmv 3/4/2021 15:13:37'!
 primitiveFileDelete 
 
 	| namePointer |
 	namePointer := self stackTop.
 	self success: (objectMemory isBytes: namePointer).
 	self success: (StandardFileStream isAFileNamed: (self stringOf: namePointer)).
-	self successful ifTrue: [FileDirectory deleteFilePath: (self stringOf: namePointer)].
+	self successful ifTrue: [DirectoryEntry currentDirectory deleteFilePath: (self stringOf: namePointer)].
 	self successful ifTrue: [self pop: 1].  "pop fileName; leave rcvr on stack"
 ! !
 
@@ -47207,25 +46042,6 @@ table: anArray from: specArray
 					[:i | anArray at: i + 1 put: ((spec at: 3) ifNil: [i] ifNotNilDo: [:sym| sym])].
 				 contiguous := contiguous + ((spec at: 2) - (spec at: 1)) + 1]]! !
 
-!StackInterpreter class methodsFor: 'benchmarks' stamp: 'eem 6/21/2011 08:46'!
-macroBenchmark  "StackInterpreter macroBenchmark"
-	| dir |
-	dir := 'benchmark2.dir'.
-	(FileDirectory default directoryExists: dir)
-		ifTrue: [(FileDirectory default directoryNamed: dir) recursiveDeleteContents]
-		ifFalse: [(FileDirectory default directoryNamed: dir) assureExistence].
-	([VMMaker
-			makerFor: StackInterpreter
-			and: nil
-			with: #()
-			to: (FileDirectory default pathFromURI: dir)
-			platformDir: 'none'
-			excluding:  (InterpreterPlugin withAllSubclasses collect: [:ea| ea name])]
-		on: VMMakerException "suppress bleats about non-existent platforms dir"
-		do: [:ex| ex resume: nil])
-			generateInterpreterFile.
-	(FileDirectory default directoryNamed: dir) recursiveDeleteContents; recursiveDelete! !
-
 !StackInterpreter class methodsFor: 'accessing class hierarchy' stamp: 'eem 9/30/2010 12:50'!
 objectMemoryClass
 	^NewObjectMemory! !
@@ -49647,51 +48463,6 @@ desiredDisplayExtent
 		ifNotNil: [savedWindowSize >> 16 @ (savedWindowSize bitAnd: 16rFFFF)])
 			min: Display extent * 2 // 3! !
 
-!StackInterpreterSimulator methodsFor: 'UI' stamp: 'eem 10/2/2010 15:37'!
-openAsMorph
-	"Open a morphic view on this simulation."
-	| window localImageName |
-	localImageName := FileDirectory default localNameFor: imageName.
-	window := (SystemWindow labelled: 'Simulation of ', localImageName) model: self.
-
-	window addMorph: (displayView := ImageMorph new image: displayForm)
-		frame: (0@0 corner: 1@0.8).
-
-	transcript := TranscriptStream on: (String new: 10000).
-	window addMorph: (PluggableTextMorph
-							on: transcript text: nil accept: nil
-							readSelection: nil menu: #codePaneMenu:shifted:)
-			frame: (0@0.8 corner: 0.7@1).
-
-	window addMorph: (PluggableTextMorph on: self
-						text: #byteCountText accept: nil
-						readSelection: nil menu: #utilitiesMenu:) hideScrollBarsIndefinitely
-			frame: (0.7@0.8 corner: 1@1).
-
-	window openInWorldExtent: (self desiredDisplayExtent
-								+ (2 * window borderWidth)
-								+ (0@window labelHeight)
-								* (1@(1/0.8))) rounded! !
-
-!StackInterpreterSimulator methodsFor: 'UI' stamp: 'eem 7/6/2010 12:52'!
-openAsMorphNoTranscript
-	"Open a morphic view on this simulation."
-	| window localImageName |
-	localImageName := FileDirectory default localNameFor: imageName.
-	window := (SystemWindow labelled: 'Simulation of ' , localImageName) model: self.
-
-	window addMorph: (displayView := ImageMorph new image: displayForm)
-		frame: (0@0 corner: 1@0.95).
-
-	window addMorph: (PluggableTextMorph on: self
-						text: #byteCountText accept: nil) hideScrollBarsIndefinitely
-		frame: (0@0.95 corner: 1@1).
-
-	window openInWorldExtent: (self desiredDisplayExtent
-								+ (2 * window borderWidth)
-								+ (0@window labelHeight)
-								* (1@(1/0.95))) rounded! !
-
 !StackInterpreterSimulator methodsFor: 'UI' stamp: 'eem 2/8/2011 17:29'!
 promptHex: string
 	| s |
@@ -50728,7 +49499,7 @@ makeDirEntryName: entryName size: entryNameSize
 	objectMemory storePointerUnchecked: 4 ofObject: results withValue: (objectMemory integerObjectOf: fileSize).
 	^ results! !
 
-!StackInterpreterSimulator methodsFor: 'file primitives' stamp: 'eem (objmem refactor) 6/8/2010 17:12'!
+!StackInterpreterSimulator methodsFor: 'file primitives' stamp: 'jmv 3/4/2021 15:12:00'!
 primitiveDirectoryEntry
 	| name pathName array result |
 	name := self stringOf: self stackTop.
@@ -50737,7 +49508,7 @@ primitiveDirectoryEntry
 	self successful ifFalse:
 		[^self primitiveFail].
 
-	array := FileDirectory default primLookupEntryIn: pathName name: name.
+	array := DirectoryEntry currentDirectory primLookupEntryIn: pathName name: name.
 	array == nil ifTrue:
 		[self pop: 3 thenPush: objectMemory nilObject.
 		^array].
@@ -50751,7 +49522,7 @@ primitiveDirectoryEntry
 	self pop: 3.
 	self push: result! !
 
-!StackInterpreterSimulator methodsFor: 'file primitives' stamp: 'eem (objmem refactor) 6/8/2010 17:12'!
+!StackInterpreterSimulator methodsFor: 'file primitives' stamp: 'jmv 3/4/2021 15:12:04'!
 primitiveDirectoryLookup
 	| index pathName array result |
 	index := self stackIntegerValue: 0.
@@ -50760,7 +49531,7 @@ primitiveDirectoryLookup
 	self successful ifFalse:
 		[^self primitiveFail].
 
-	array := FileDirectory default primLookupEntryIn: pathName index: index.
+	array := DirectoryEntry currentDirectory primLookupEntryIn: pathName index: index.
 
 	array == nil ifTrue:
 		[self pop: 3 thenPush: objectMemory nilObject.
@@ -54866,12 +53637,6 @@ interpreterClass
 !ObjectMemory class methodsFor: 'translation' stamp: 'eem 2/27/2013 15:32'!
 isNonArgumentImplicitReceiverVariableName: aString
 	^#('self' 'interpreter' 'coInterpreter' 'heapMap') includes: aString! !
-
-!ObjectMemory class methodsFor: 'translation' stamp: 'tpr 2/17/2005 13:19'!
-noteCompilationOf: aSelector meta: isMeta
-	"note the recompiliation by resetting the timeStamp "
-	timeStamp := Time totalSeconds.
-	^super noteCompilationOf: aSelector meta: isMeta! !
 
 !ObjectMemory class methodsFor: 'translation' stamp: 'tpr 2/29/2004 19:51'!
 requiredMethodNames
@@ -59680,10 +58445,10 @@ moduleNameAndVersion
 
 	^ self moduleName, Character space asString, Date today asString! !
 
-!InterpreterPlugin class methodsFor: 'translation' stamp: 'ar 5/12/2000 00:24'!
+!InterpreterPlugin class methodsFor: 'translation' stamp: 'jmv 3/4/2021 15:11:06'!
 baseDirectoryName
 	"Return the directory into which plugins should be generated by default."
-	^FileDirectory default pathName! !
+	^DirectoryEntry currentDirectory pathName! !
 
 !InterpreterPlugin class methodsFor: 'translation' stamp: 'dtl 8/21/2011 21:10'!
 buildCodeGenerator
@@ -59785,19 +58550,18 @@ storeString: s onFileNamed: fileName
 	f nextPutAll: s.
 	f close.! !
 
-!InterpreterPlugin class methodsFor: 'translation' stamp: 'bf 10/1/2014 10:03'!
+!InterpreterPlugin class methodsFor: 'translation' stamp: 'jmv 3/4/2021 16:07:46'!
 translateInDirectory: directory doInlining: inlineFlag
 "This is the default method for writing out sources for a plugin. Several classes need special handling, so look at all implementors of this message"
 	| cg fname fstat |
 	 fname := self moduleFileName.
 
 	"don't translate if the file is newer than my timeStamp"
-	fstat := directory entryAt: fname ifAbsent:[nil].
-	fstat ifNotNil:[self timeStamp < fstat modificationTime ifTrue:[^nil]].
+	fstat := directory // fname.
 
 	self initialize.
 	cg := self buildCodeGenerator.
-	cg storeCodeOnFile:  (directory fullNameFor: fname) doInlining: inlineFlag.
+	cg storeCodeOnFile: fstat pathName doInlining: inlineFlag.
 	^cg exportedPrimitiveNames asArray! !
 
 !InterpreterPlugin class methodsFor: 'private' stamp: 'tpr 6/9/2003 16:41'!
@@ -59832,21 +58596,9 @@ simulatorClass
 
 	^ self! !
 
-!InterpreterPlugin class methodsFor: 'compiling' stamp: 'tpr 2/17/2005 13:19'!
-noteCompilationOf: aSelector meta: isMeta
-	"note the recompiliation by resetting the timeStamp "
-	timeStamp := Time totalSeconds.
-	^super noteCompilationOf: aSelector meta: isMeta! !
-
 !InterpreterPlugin class methodsFor: 'as yet unclassified' stamp: 'tpr 11/23/2015 16:46'!
 pruneUnusedInterpreterPluginMethodsIn: ignored
 	"In the Cog VMMaker/InterpreterPlugin this method removes unneeded plugin methods. Here, now, it does nothing"! !
-
-!ADPCMCodecPlugin class methodsFor: 'translation' stamp: 'eem 1/3/2013 11:42'!
-monticelloDescription
-	"Override to include the ADPCMCodec class."
-	"self monticelloDescription"
-	^super monticelloDescription, '\' withCRs, (CCodeGenerator monticelloDescriptionFor: ADPCMCodec)! !
 
 !ADPCMCodecPlugin class methodsFor: 'translation' stamp: 'bf 10/1/2014 10:04'!
 translateInDirectory: directory doInlining: inlineFlag
@@ -70473,1044 +69225,6 @@ declareCVarsIn: cg
 	cg var: #imagData type: #'float *'.
 	cg var: #permTable type: #'unsigned int *'! !
 
-!FilePlugin methodsFor: 'directory primitives' stamp: 'eem 12/2/2013 14:32'!
-asciiDirectoryDelimiter
-	^ self
-		cCode: 'dir_Delimitor()'
-		inSmalltalk:
-			[(Smalltalk classNamed: #FileSystem)
-				ifNotNil: [:fileSystem| fileSystem disk delimiter asciiValue]
-				ifNil: [FileDirectory pathNameDelimiter asciiValue]]! !
-
-!FilePlugin methodsFor: 'directory primitives' stamp: 'eem 10/4/2013 14:19'!
-makeDirEntryName: entryName size: entryNameSize
-	createDate: createDate modDate: modifiedDate
-	isDir: dirFlag fileSize: fileSize
-
-	| modDateOop createDateOop nameString results stringPtr fileSizeOop |
-	<var: 'entryName' type: 'char *'>
-	<var: 'stringPtr' type:'char *'>
-	<var: 'fileSize' type:'squeakFileOffsetType '>
-
-	"allocate storage for results, remapping newly allocated
-	 oops in case GC happens during allocation"
-	interpreterProxy pushRemappableOop:
-		(interpreterProxy instantiateClass: (interpreterProxy classArray) indexableSize: 5).
-	interpreterProxy pushRemappableOop:
-		(interpreterProxy instantiateClass: (interpreterProxy classString) indexableSize: entryNameSize).
-	interpreterProxy pushRemappableOop: 
-		(interpreterProxy positive32BitIntegerFor: createDate).
-	interpreterProxy pushRemappableOop: 
-		(interpreterProxy positive32BitIntegerFor: modifiedDate).
-	interpreterProxy pushRemappableOop:
-		(interpreterProxy positive64BitIntegerFor: fileSize).
-
-	fileSizeOop   := interpreterProxy popRemappableOop.
-	modDateOop   := interpreterProxy popRemappableOop.
-	createDateOop := interpreterProxy popRemappableOop.
-	nameString    := interpreterProxy popRemappableOop.
-	results         := interpreterProxy popRemappableOop.
-
-	"copy name into Smalltalk string"
-	stringPtr := interpreterProxy firstIndexableField: nameString.
-	0 to: entryNameSize - 1 do: [ :i |
-		stringPtr at: i put: (entryName at: i).
-	].
-
-	interpreterProxy storePointer: 0 ofObject: results withValue: nameString.
-	interpreterProxy storePointer: 1 ofObject: results withValue: createDateOop.
-	interpreterProxy storePointer: 2 ofObject: results withValue: modDateOop.
-	dirFlag
-		ifTrue: [ interpreterProxy storePointer: 3 ofObject: results withValue: interpreterProxy trueObject ]
-		ifFalse: [ interpreterProxy storePointer: 3 ofObject: results withValue: interpreterProxy falseObject ].
-	interpreterProxy storePointer: 4 ofObject: results withValue: fileSizeOop.
-	^ results! !
-
-!FilePlugin methodsFor: 'directory primitives' stamp: 'eem 5/21/2015 19:09'!
-makeDirEntryName: entryName size: entryNameSize createDate: createDate modDate: modifiedDate isDir: dirFlag fileSize: fileSize posixPermissions: posixPermissions isSymlink: symlinkFlag
-	<var: 'entryName' type: 'char *'>
-	<var: 'fileSize' type: 'squeakFileOffsetType '>
-	<option: #PharoVM>
-
-	| modDateOop createDateOop nameString results stringPtr posixPermissionsOop fileSizeOop |
-	<var: 'stringPtr' type: 'char *'>
-
-	"allocate storage for results, remapping newly allocated
-	 oops in case GC happens during allocation"
-	interpreterProxy pushRemappableOop:
-		(interpreterProxy instantiateClass: (interpreterProxy classArray) indexableSize: 7).
-	interpreterProxy pushRemappableOop:
-		(interpreterProxy instantiateClass: (interpreterProxy classString) indexableSize: entryNameSize).
-	interpreterProxy pushRemappableOop: 
-		(interpreterProxy positive32BitIntegerFor: createDate).
-	interpreterProxy pushRemappableOop: 
-		(interpreterProxy positive32BitIntegerFor: modifiedDate).
-	interpreterProxy pushRemappableOop:
-		(interpreterProxy positive64BitIntegerFor: fileSize).
-	interpreterProxy pushRemappableOop: 
-		(interpreterProxy positive32BitIntegerFor: posixPermissions).
-
-	posixPermissionsOop := interpreterProxy popRemappableOop.
-	fileSizeOop := interpreterProxy popRemappableOop.
-	modDateOop := interpreterProxy popRemappableOop.
-	createDateOop := interpreterProxy popRemappableOop.
-	nameString  := interpreterProxy popRemappableOop.
-	results := interpreterProxy popRemappableOop.
-
-	"copy name into Smalltalk string"
-	stringPtr := interpreterProxy firstIndexableField: nameString.
-	0 to: entryNameSize - 1 do: [ :i |
-		stringPtr at: i put: (entryName at: i).
-	].
-
-	interpreterProxy storePointer: 0 ofObject: results withValue: nameString.
-	interpreterProxy storePointer: 1 ofObject: results withValue: createDateOop.
-	interpreterProxy storePointer: 2 ofObject: results withValue: modDateOop.
-	dirFlag
-		ifTrue: [ interpreterProxy storePointer: 3 ofObject: results withValue: interpreterProxy trueObject ]
-		ifFalse: [ interpreterProxy storePointer: 3 ofObject: results withValue: interpreterProxy falseObject ].
-	interpreterProxy storePointer: 4 ofObject: results withValue: fileSizeOop.
-	interpreterProxy storePointer: 5 ofObject: results withValue: posixPermissionsOop.
-	symlinkFlag
-		ifTrue: [ interpreterProxy storePointer:  6 ofObject: results withValue: interpreterProxy trueObject ]
-		ifFalse: [ interpreterProxy storePointer: 6 ofObject: results withValue: interpreterProxy falseObject ].
-	^ results! !
-
-!FilePlugin methodsFor: 'directory primitives' stamp: 'eem 2/3/2015 16:54'!
-primitiveDirectoryCreate
-
-	| dirName dirNameIndex dirNameSize okToCreate |
-	<var: #dirNameIndex type: 'char *'>
-	<export: true>
-
-	dirName := interpreterProxy stackValue: 0.
-	(interpreterProxy isBytes: dirName) ifFalse:
-		[^interpreterProxy primitiveFail].
-	dirNameIndex := interpreterProxy firstIndexableField: dirName.
-	dirNameSize := interpreterProxy byteSizeOf: dirName.
-	"If the security plugin can be loaded, use it to check for permission.
-	If not, assume it's ok"
-	sCCPfn ~= 0 ifTrue:
-		[okToCreate := self cCode: ' ((sqInt (*)(char *, sqInt))sCCPfn)(dirNameIndex, dirNameSize)'
-							inSmalltalk: [true].
-		 okToCreate ifFalse:
-			[^interpreterProxy primitiveFail]].
-	(self
-		cCode: 'dir_Create(dirNameIndex, dirNameSize)'
-		inSmalltalk: [self createDirectory: (interpreterProxy asString: dirNameIndex)]) ifFalse:
-		[^interpreterProxy primitiveFail].
-	interpreterProxy pop: 1! !
-
-!FilePlugin methodsFor: 'directory primitives' stamp: 'nice 3/17/2016 20:15'!
-primitiveDirectoryDelete
-
-	| dirName dirNameIndex dirNameSize okToDelete |
-	<var: #dirNameIndex type: 'char *'>
-	<export: true>
-
-	dirName := interpreterProxy stackValue: 0.
-	(interpreterProxy isBytes: dirName)
-		ifFalse: [^interpreterProxy primitiveFail].
-	dirNameIndex := interpreterProxy firstIndexableField: dirName.
-	dirNameSize := interpreterProxy byteSizeOf: dirName.
-	"If the security plugin can be loaded, use it to check for permission.
-	If not, assume it's ok"
-	sCDPfn ~= 0
-		ifTrue: [okToDelete := self cCode: ' ((sqInt (*)(char *, sqInt))sCDPfn)(dirNameIndex, dirNameSize)' inSmalltalk: [false].
-			okToDelete
-				ifFalse: [^interpreterProxy primitiveFail]].
-	(self
-			cCode: 'dir_Delete(dirNameIndex, dirNameSize)'
-			inSmalltalk: [false])
-		ifFalse: [^interpreterProxy primitiveFail].
-	interpreterProxy pop: 1! !
-
-!FilePlugin methodsFor: 'directory primitives' stamp: 'eem 6/22/2010 11:11'!
-primitiveDirectoryDelimitor
-	| ascii |
-	<export: true>
-	ascii := self asciiDirectoryDelimiter.
-	((ascii >= 0) and: [ascii <= 255]) ifFalse:
-		[^interpreterProxy primitiveFail].
-	interpreterProxy
-		pop: 1
-		thenPush: (interpreterProxy fetchPointer: ascii ofObject: (interpreterProxy characterTable))! !
-
-!FilePlugin methodsFor: 'directory primitives' stamp: 'ar (auto pragmas 12/08) 4/4/2006 20:50'!
-primitiveDirectoryGetMacTypeAndCreator
-
-	| creatorString typeString fileName creatorStringIndex typeStringIndex fileNameIndex fileNameSize okToGet |
-	<var: 'creatorStringIndex' type: 'char *'>
-	<var: 'typeStringIndex' type: 'char *'>
-	<var: 'fileNameIndex' type: 'char *'>
-	<export: true>
-
-	creatorString := interpreterProxy stackValue: 0.
-	typeString := interpreterProxy stackValue: 1.
-	fileName := interpreterProxy stackValue: 2.
-	((interpreterProxy isBytes: creatorString)
-			and: [(interpreterProxy byteSizeOf: creatorString) = 4])
-		ifFalse: [^interpreterProxy primitiveFail].
-	((interpreterProxy isBytes: typeString)
-			and: [(interpreterProxy byteSizeOf: typeString) = 4])
-		ifFalse: [^interpreterProxy primitiveFail].
-	(interpreterProxy isBytes: fileName)
-		ifFalse: [^interpreterProxy primitiveFail].
-	creatorStringIndex := interpreterProxy firstIndexableField: creatorString.
-	typeStringIndex := interpreterProxy firstIndexableField: typeString.
-	fileNameIndex := interpreterProxy firstIndexableField: fileName.
-	fileNameSize := interpreterProxy byteSizeOf: fileName.
-	"If the security plugin can be loaded, use it to check for permission.
-	If not, assume it's ok"
-	sCGFTfn ~= 0
-		ifTrue: [okToGet := self cCode: ' ((sqInt (*)(char *, sqInt))sCGFTfn)(fileNameIndex, fileNameSize)'.
-			okToGet
-				ifFalse: [^interpreterProxy primitiveFail]].
-	(self
-			cCode: 'dir_GetMacFileTypeAndCreator(fileNameIndex, fileNameSize, typeStringIndex, creatorStringIndex)'
-			inSmalltalk: [true])
-		ifFalse: [^interpreterProxy primitiveFail].
-	interpreterProxy pop: 3! !
-
-!FilePlugin methodsFor: 'directory primitives' stamp: 'dtl 9/11/2016 21:24'!
-primitiveDirectoryLookup
-
-	| index pathName pathNameIndex pathNameSize status entryName entryNameSize createDate modifiedDate dirFlag symlinkFlag posixPermissions fileSize okToList |
-	
-	<var: 'entryName' declareC: 'char entryName[256]'>
-	<var: 'pathNameIndex' type: 'char *'>
-	<var: 'fileSize' type: 'squeakFileOffsetType'>
-	<export: true>
-
-	index := interpreterProxy stackIntegerValue: 0.
-	pathName := interpreterProxy stackValue: 1.
-	(interpreterProxy isBytes: pathName)
-		ifFalse: [^interpreterProxy primitiveFail].
-	pathNameIndex := interpreterProxy firstIndexableField: pathName.
-	pathNameSize := interpreterProxy byteSizeOf: pathName.
-	"If the security plugin can be loaded, use it to check for permission. 
-	If not, assume it's ok"
-	sCLPfn ~= 0
-		ifTrue: [okToList := self cCode: '((sqInt (*)(char *, sqInt))sCLPfn)(pathNameIndex, pathNameSize)']
-		ifFalse: [okToList := true].
-	okToList
-		ifTrue: [
-			self isDefined: 'PharoVM'
-				inSmalltalk: [ status := -1 ]
-				comment: 'platform support code diverged for pharo'
-				ifTrue: [ 
-					status := self cCode: 'dir_Lookup(pathNameIndex, pathNameSize, index,
-												entryName, &entryNameSize, &createDate,
-												&modifiedDate, &dirFlag, &fileSize, 
-												&posixPermissions, &symlinkFlag)' ]
-				ifFalse: [ 
-					status := self cCode: 'dir_Lookup(pathNameIndex, pathNameSize, index,
-												entryName, &entryNameSize, &createDate,
-												&modifiedDate, &dirFlag, &fileSize)' ] ]
-		ifFalse: [status := DirNoMoreEntries].
-	interpreterProxy failed
-		ifTrue: [^nil].
-	status = DirNoMoreEntries
-		ifTrue: ["no more entries; return nil"
-			interpreterProxy pop: 3 "pop pathName, index, rcvr"
-				thenPush: interpreterProxy nilObject.
-			^nil].
-	status = DirBadPath
-		ifTrue: [^interpreterProxy primitiveFail]."bad path"
-
-	self isDefined: 'PharoVM'
-		inSmalltalk: [ status := -1 ]
-		comment: 'platform support code diverged for pharo'
-		ifTrue: [ 
-			interpreterProxy 
-				pop: 3	"pop pathName, index, rcvr" 
-				thenPush: (self
-					makeDirEntryName: entryName
-					size: entryNameSize
-					createDate: createDate
-					modDate: modifiedDate
-					isDir: dirFlag
-					fileSize: fileSize
-					posixPermissions: posixPermissions
-					isSymlink: symlinkFlag) ]
-		ifFalse: [ 
-			interpreterProxy 
-				pop: 3	"pop pathName, index, rcvr" 
-				thenPush: (self
-						makeDirEntryName: entryName
-						size: entryNameSize
-						createDate: createDate
-						modDate: modifiedDate
-						isDir: dirFlag
-						fileSize: fileSize) ]! !
-
-!FilePlugin methodsFor: 'directory primitives' stamp: 'eem 2/12/2014 17:49'!
-primitiveDirectorySetMacTypeAndCreator
-
-	| creatorString typeString fileName creatorStringIndex typeStringIndex fileNameIndex fileNameSize okToSet |
-	<var: 'creatorStringIndex' type: 'char *'>
-	<var: 'typeStringIndex' type: 'char *'>
-	<var: 'fileNameIndex' type: 'char *'>
-	<export: true>
-
-	creatorString := interpreterProxy stackValue: 0.
-	typeString := interpreterProxy stackValue: 1.
-	fileName := interpreterProxy stackValue: 2.
-	((interpreterProxy isBytes: creatorString)
-	 and: [(interpreterProxy isBytes: typeString)
-	 and: [(interpreterProxy isBytes: fileName)
-	 and: [(interpreterProxy byteSizeOf: creatorString) = 4
-	 and: [(interpreterProxy byteSizeOf: typeString) = 4]]]]) ifFalse:
-		[^interpreterProxy primitiveFail].
-	creatorStringIndex := interpreterProxy firstIndexableField: creatorString.
-	typeStringIndex := interpreterProxy firstIndexableField: typeString.
-	fileNameIndex := interpreterProxy firstIndexableField: fileName.
-	fileNameSize := interpreterProxy byteSizeOf: fileName.
-	"If the security plugin can be loaded, use it to check for permission.
-	If not, assume it's ok"
-	sCSFTfn ~= 0 ifTrue:
-		[okToSet := self
-						cCode: '((sqInt (*)(char *, sqInt))sCSFTfn)(fileNameIndex, fileNameSize)'
-						inSmalltalk: [true].
-		 okToSet ifFalse:
-			[^interpreterProxy primitiveFail]].
-	(self
-		cCode: 'dir_SetMacFileTypeAndCreator(fileNameIndex, fileNameSize, typeStringIndex, creatorStringIndex)'
-		inSmalltalk: [true]) ifFalse:
-			[^interpreterProxy primitiveFail].
-	interpreterProxy pop: 3! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'tpr (auto pragmas 12/08) 12/30/2005 15:23'!
-fileOpenName: nameIndex size: nameSize write: writeFlag secure: secureFlag
-	"Open the named file, possibly checking security. Answer the file oop."
-	| file fileOop okToOpen |
-	<var: #file type: 'SQFile *'>
-	<var: 'nameIndex' type: 'char *'>
-	<export: true>
-	fileOop := interpreterProxy instantiateClass: interpreterProxy classByteArray indexableSize: self fileRecordSize.
-	file := self fileValueOf: fileOop.
-	interpreterProxy failed
-		ifFalse: [ secureFlag ifTrue: [
-				"If the security plugin can be loaded, use it to check for permission.
-				If not, assume it's ok"
-				sCOFfn ~= 0 
-					ifTrue: [okToOpen := self cCode: '((sqInt (*) (char *, sqInt, sqInt)) sCOFfn)(nameIndex, nameSize, writeFlag)' inSmalltalk:[true].
-						okToOpen
-							ifFalse: [interpreterProxy primitiveFail]]]].
-	interpreterProxy failed
-		ifFalse: [self cCode: 'sqFileOpen(file, nameIndex, nameSize, writeFlag)' inSmalltalk: [file]].
-	^ fileOop! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'eem 12/12/2012 11:43'!
-fileRecordSize
-	"Return the size of a Smalltalk file record in bytes."
-	<static: false>
-	^self sizeof: #SQFile! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'eem 2/10/2009 13:42'!
-fileValueOf: objectPointer
-	"Return a pointer to the first byte of of the file record within the given Smalltalk object, or nil if objectPointer is not a file record."
-	<returnTypeC: 'SQFile *'>
-	<static: false>
-	(((interpreterProxy isBytes: objectPointer) and:
-		 [(interpreterProxy byteSizeOf: objectPointer) = self fileRecordSize]))
-			ifFalse:[interpreterProxy primitiveFail. ^nil].
-	^interpreterProxy firstIndexableField: objectPointer! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'tpr (auto pragmas 12/08) 12/21/2005 19:06'!
-getThisSession
-	"Exported entry point for the VM. Only used by AsynchFilePlugin and needs to be reowrked now we have a VM global session Id capability"
-	<export: true> 
-	^self cCode: 'sqFileThisSession()'.! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'tpr (auto pragmas 12/08) 12/29/2005 16:07'!
-primitiveFileAtEnd
-	| file atEnd |
-	<export: true>
-	<var: 'file' type: 'SQFile *'>
-	file := self fileValueOf: (interpreterProxy stackValue: 0).
-	interpreterProxy failed
-		ifFalse: [atEnd := self sqFileAtEnd: file].
-	interpreterProxy failed
-		ifFalse: [interpreterProxy pop: 2. "rcvr, file"
-			interpreterProxy pushBool: atEnd]! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'tpr (auto pragmas 12/08) 12/29/2005 16:08'!
-primitiveFileClose
-
-	| file |
-	<export: true>
-	<var: 'file' type: 'SQFile *'>
-	file := self fileValueOf: (interpreterProxy stackValue: 0).
-	interpreterProxy failed ifFalse: [ self sqFileClose: file ].
-	interpreterProxy failed ifFalse: [ interpreterProxy pop: 1  "pop file; leave rcvr on stack" ].! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'eem 1/16/2014 13:42'!
-primitiveFileDelete
-
-	| namePointer nameIndex nameSize  okToDelete |
-	<var: 'nameIndex' type: 'char *'>
-	<export: true>
-
-	namePointer := interpreterProxy stackValue: 0.
-	(interpreterProxy isBytes: namePointer)
-		ifFalse: [^ interpreterProxy primitiveFail].
-	nameIndex := interpreterProxy firstIndexableField: namePointer.
-	nameSize := interpreterProxy byteSizeOf: namePointer.
-	"If the security plugin can be loaded, use it to check for permission.
-	If not, assume it's ok"
-	sCDFfn ~= 0
-		ifTrue: [okToDelete := self cCode: ' ((sqInt (*)(char *, sqInt))sCDFfn)(nameIndex, nameSize)' inSmalltalk: [true].
-			okToDelete
-				ifFalse: [^ interpreterProxy primitiveFail]].
-	self
-		sqFileDeleteName: nameIndex
-		Size: nameSize.
-	interpreterProxy failed
-		ifFalse: [interpreterProxy pop: 1]! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'tpr (auto pragmas 12/08) 12/29/2005 16:08'!
-primitiveFileFlush
-	| file |
-	<var: 'file' type: 'SQFile *'>
-	<export: true>
-	file := self fileValueOf: (interpreterProxy stackValue: 0).
-	interpreterProxy failed ifFalse:[self sqFileFlush: file].
-	interpreterProxy failed ifFalse: [interpreterProxy pop: 1].! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'tpr (auto pragmas 12/08) 12/29/2005 16:14'!
-primitiveFileGetPosition
-	| file position |
-	<var: 'file' type: 'SQFile *'>
-	<var: 'position' type: 'squeakFileOffsetType'>
-	<export: true>
-	file := self fileValueOf: (interpreterProxy stackValue: 0).
-	interpreterProxy failed ifFalse: [position := self sqFileGetPosition: file].
-	interpreterProxy failed ifFalse: [
-		interpreterProxy pop: 2 thenPush: (interpreterProxy positive64BitIntegerFor: position)].! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'tpr (auto pragmas 12/08) 12/30/2005 15:22'!
-primitiveFileOpen
-	| writeFlag namePointer filePointer nameIndex nameSize |
-	<var: 'nameIndex' type: 'char *'>
-	<export: true>
-	writeFlag := interpreterProxy
-				booleanValueOf: (interpreterProxy stackValue: 0).
-	namePointer := interpreterProxy stackValue: 1.
-	(interpreterProxy isBytes: namePointer)
-		ifFalse: [^ interpreterProxy primitiveFail].
-	nameIndex := interpreterProxy firstIndexableField: namePointer.
-	nameSize := interpreterProxy byteSizeOf: namePointer.
-	filePointer := self fileOpenName: nameIndex size: nameSize write: writeFlag secure: true.
-	interpreterProxy failed
-		ifFalse: [interpreterProxy pop: 3 "rcvr, name, writeFlag"
-			thenPush: filePointer]
-! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'dtl 9/12/2016 20:42'!
-primitiveFileRead
-	<export: true>
-	"self cppIf: SPURVM"
-	self isDefined: 'SPURVM'
-		inSmalltalk: [ self primitiveFileReadWithoutPinning ]
-		comment: 'use primitiveFileReadWithPinning for SPUR'
-		ifTrue: [self primitiveFileReadWithPinning]
-		ifFalse: [self primitiveFileReadWithoutPinning]! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'eem 3/1/2016 17:32'!
-primitiveFileReadWithPinning
-	"This version of primitiveFileRead is for garbage collectors that support pinning."
-	| count startIndex array file elementSize bytesRead |
-	<inline: true>
-	<var: 'file' type: #'SQFile *'>
-	<var: 'count' type: #'size_t'>
-	<var: 'startIndex' type: #'size_t'>
-	<var: 'elementSize' type: #'size_t'>
-	count		:= interpreterProxy positive32BitValueOf: (interpreterProxy stackValue: 0).
-	startIndex	:= interpreterProxy positive32BitValueOf: (interpreterProxy stackValue: 1).
- 	array		:= interpreterProxy stackValue: 2.
-	file			:= self fileValueOf: (interpreterProxy stackValue: 3).
-
-	(interpreterProxy failed
-	"buffer can be any indexable words or bytes object except CompiledMethod"
-	 or: [(interpreterProxy isWordsOrBytes: array) not]) ifTrue:
-		[^interpreterProxy primitiveFailFor: PrimErrBadArgument].
-
-	elementSize := (interpreterProxy isWords: array) ifTrue: [4] ifFalse: [1].
-	(startIndex >= 1
-	 and: [(startIndex + count - 1) <= (interpreterProxy slotSizeOf: array)]) ifFalse:
-		[^interpreterProxy primitiveFailFor: PrimErrBadIndex].
-
-	"Note: adjust startIndex for zero-origin indexing"
-	bytesRead := self
-					sqFile: file
-					Read: count * elementSize
-					Into: (interpreterProxy cCoerce: (interpreterProxy firstIndexableField: array) to: #'char *')
-					At: (startIndex - 1) * elementSize.
-	interpreterProxy failed ifFalse:
-		[interpreterProxy
-			pop: 5 "pop rcvr, file, array, startIndex, count"
-			thenPush:(interpreterProxy integerObjectOf: bytesRead // elementSize)  "push # of elements read"]! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'eem 3/1/2016 17:32'!
-primitiveFileReadWithoutPinning
-	"This version of primitiveFileRead is for garbage collectors without support for pinning."
-	| retryCount count startIndex array file elementSize bytesRead |
-	<inline: true>
-	<var: 'file' type: #'SQFile *'>
-	<var: 'count' type: #'size_t'>
-	<var: 'startIndex' type: #'size_t'>
-	<var: 'elementSize' type: #'size_t'>
-	retryCount	:= 0.
-	count		:= interpreterProxy positive32BitValueOf: (interpreterProxy stackValue: 0).
-	startIndex	:= interpreterProxy positive32BitValueOf: (interpreterProxy stackValue: 1).
- 
-	[array		:= interpreterProxy stackValue: 2.
-	 file			:= self fileValueOf: (interpreterProxy stackValue: 3).
-
-	 (interpreterProxy failed
-	 "buffer can be any indexable words or bytes object except CompiledMethod"
-	 or: [(interpreterProxy isWordsOrBytes: array) not]) ifTrue:
-		[^interpreterProxy primitiveFailFor: PrimErrBadArgument].
-
-	 elementSize := (interpreterProxy isWords: array) ifTrue: [4] ifFalse: [1].
-	 (startIndex >= 1
-	  and: [(startIndex + count - 1) <= (interpreterProxy slotSizeOf: array)]) ifFalse:
-		[^interpreterProxy primitiveFailFor: PrimErrBadIndex].
-
-	 "Note: adjust startIndex for zero-origin indexing"
-	 bytesRead := self
-					sqFile: file
-					Read: count * elementSize
-					Into: (interpreterProxy cCoerce: (interpreterProxy firstIndexableField: array) to: #'char *')
-					At: (startIndex - 1) * elementSize.
-	 interpreterProxy primitiveFailureCode = PrimErrObjectMayMove
-	 and: [(retryCount := retryCount + 1) <= 2] "Two objects, the file and the array can move"] whileTrue:
-		[interpreterProxy
-			tenuringIncrementalGC;
-			primitiveFailFor: PrimNoErr].
-	interpreterProxy failed ifFalse:
-		[interpreterProxy
-			pop: 5 "pop rcvr, file, array, startIndex, count"
-			thenPush:(interpreterProxy integerObjectOf: bytesRead // elementSize)  "push # of elements read"]! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'tpr (auto pragmas 12/08) 12/30/2005 15:31'!
-primitiveFileRename
-
-	| oldNamePointer newNamePointer oldNameIndex oldNameSize newNameIndex newNameSize  okToRename |
-	<var: 'oldNameIndex' type: 'char *'>
-	<var: 'newNameIndex' type: 'char *'>
-	<export: true>
-
-	newNamePointer := interpreterProxy stackValue: 0.
-	oldNamePointer := interpreterProxy stackValue: 1.
-	((interpreterProxy isBytes: newNamePointer)
-			and: [interpreterProxy isBytes: oldNamePointer])
-		ifFalse: [^interpreterProxy primitiveFail].
-	newNameIndex := interpreterProxy firstIndexableField: newNamePointer.
-	newNameSize := interpreterProxy byteSizeOf: newNamePointer.
-	oldNameIndex := interpreterProxy firstIndexableField: oldNamePointer.
-	oldNameSize := interpreterProxy byteSizeOf: oldNamePointer.
-	"If the security plugin can be loaded, use it to check for rename permission.
-	If not, assume it's ok"
-	sCRFfn ~= 0
-		ifTrue: [okToRename := self cCode: ' ((sqInt (*)(char *, sqInt))sCRFfn)(oldNameIndex, oldNameSize)'.
-			okToRename
-				ifFalse: [^interpreterProxy primitiveFail]].
-	self
-		sqFileRenameOld: oldNameIndex Size: oldNameSize
-		New: newNameIndex Size: newNameSize.
-	interpreterProxy failed
-		ifFalse: [interpreterProxy pop: 2]! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'eem 9/4/2014 16:26'!
-primitiveFileSetPosition
-	| newPosition file |
-	<var: 'file' type: 'SQFile *'>
-	<var: 'newPosition' type: 'squeakFileOffsetType'>
-	<export: true>
-	(interpreterProxy byteSizeOf: (interpreterProxy stackValue: 0)) > (self sizeof: #squeakFileOffsetType) ifTrue:
-		[^interpreterProxy primitiveFail].
-	newPosition := interpreterProxy positive64BitValueOf: (interpreterProxy stackValue: 0).
-	file := self fileValueOf: (interpreterProxy stackValue: 1).
-	interpreterProxy failed ifFalse:
-		[self sqFile: file SetPosition: newPosition ].
-	interpreterProxy failed ifFalse:
-		[interpreterProxy pop: 2] "pop position, file; leave rcvr on stack"! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'tpr (auto pragmas 12/08) 12/29/2005 16:15'!
-primitiveFileSize
-	| file size |
-	<var: 'file' type: 'SQFile *'>
-	<var: 'size' type: 'squeakFileOffsetType'>
-	<export: true>
-	file := self fileValueOf: (interpreterProxy stackValue: 0).
-	interpreterProxy failed ifFalse:[size := self sqFileSize: file].
-	interpreterProxy failed ifFalse: [
-		interpreterProxy pop: 2 thenPush: (interpreterProxy positive64BitIntegerFor: size)].! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'dtl 9/12/2016 20:56'!
-primitiveFileStdioHandles
-	"Answer an Array of file handles for standard in, standard out and standard error,
-	 with nil in entries that are unvailable, e.g. because the platform does not provide
-	 standard error, etc.  Fail if there are no standard i/o facilities on the platform or
-	 if the security plugin denies access or if memory runs out."
-	| fileRecords result validMask |
-	<export: true>
-	<var: 'fileRecords' declareC: 'SQFile fileRecords[3]'>
-	sHFAfn ~= 0 ifTrue:
-		[(self cCode: ' ((sqInt (*)(void))sHFAfn)()' inSmalltalk: [true]) ifFalse:
-			[^interpreterProxy primitiveFailFor: PrimErrUnsupported]].
-	self cCode: '' inSmalltalk: [fileRecords := Array new: 3].
-	validMask := self sqFileStdioHandlesInto: fileRecords.
-	validMask = 0 ifTrue:
-		[^interpreterProxy primitiveFailFor: PrimErrUnsupported].
-	result := interpreterProxy instantiateClass: interpreterProxy classArray indexableSize: 3.
-	result = nil ifTrue:
-		[^interpreterProxy primitiveFailFor: PrimErrNoMemory].
-	interpreterProxy pushRemappableOop: result.
-	0 to: 2 do:
-		[:index|
-		(validMask bitAnd: (1 << index)) ~= 0 ifTrue:
-			[result := interpreterProxy instantiateClass: interpreterProxy classByteArray indexableSize: self fileRecordSize.
-			 result = nil ifTrue:
-				[interpreterProxy popRemappableOop.
-				^interpreterProxy primitiveFailFor: PrimErrNoMemory].
-			 interpreterProxy storePointer: index ofObject: interpreterProxy topRemappableOop withValue: result.
-			 self
-				cCode:
-					[self mem: (interpreterProxy firstIndexableField: result)
-						cp: (self addressOf: (fileRecords at: index))
-						y: self fileRecordSize]
-				inSmalltalk:
-					[(interpreterProxy firstIndexableField: result)
-						unitSize: interpreterProxy wordSize;
-						at: 0 put: (fileRecords at: index + 1)]]].
-	 "In the non-Spur threaded VM ensure the handles are old, so that sqFileReadIntoAt is unaffected
-	  by incremental GCs.  See platforms/Cross/plugins/FilePlugin/sqFilePluginBasicPrims.c.  The Spur
-	  VM uses pinning, so it doesn't need the GC."
-
-	self isDefined: 'COGMTVM'
-		inSmalltalk: [ Smalltalk garbageCollect ]
-		comment: 'In the threaded VM ensure the handles are old, so that sqFileReadIntoAt is unaffected by incremental GCs.  See platforms/Cross/plugins/FilePlugin/sqFilePluginBasicPrims.c.'
-		ifTrue: [	self isDefined: 'SPURVM'
-					inSmalltalk: [ ]
-					comment: 'The Spur VM uses pinning, so it does not need the GC.'
-					ifTrue: [ true ]
-					ifFalse: [ interpreterProxy fullGC ]. ].
-
-	result := interpreterProxy popRemappableOop.
-	interpreterProxy pop: 1 thenPush: result! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'monty 9/26/2015 22:26'!
-primitiveFileSync
-	| file |
-	<var: 'file' type: 'SQFile *'>
-	<export: true>
-	file := self fileValueOf: (interpreterProxy stackValue: 0).
-	interpreterProxy failed ifFalse:[self sqFileSync: file].
-	interpreterProxy failed ifFalse: [interpreterProxy pop: 1].! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'eem 3/22/2015 19:51'!
-primitiveFileTruncate
-"ftruncate is not an ansi function so we have a macro to point to a suitable platform implementation" 
-	| truncatePosition file |
-	<var: 'file' type: #'SQFile *'>
-	<var: 'truncatePosition' type: #squeakFileOffsetType>
-	<export: true>
-	(interpreterProxy isIntegerObject: (interpreterProxy stackValue: 0)) ifFalse:
-		[(interpreterProxy byteSizeOf: (interpreterProxy stackValue: 0)) > (self sizeof: #squeakFileOffsetType) ifTrue:
-			[^interpreterProxy primitiveFail]].
-	truncatePosition := interpreterProxy positive64BitValueOf: (interpreterProxy stackValue: 0).
-	file := self fileValueOf: (interpreterProxy stackValue: 1).
-	interpreterProxy failed ifFalse:
-		[self sqFile: file Truncate: truncatePosition].
-		 interpreterProxy failed ifFalse:
-			[interpreterProxy pop: 2 "pop position, file; leave rcvr on stack"]! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'eem 11/1/2013 23:34'!
-primitiveFileWrite
-	| count startIndex array file elementSize bytesWritten |
-	<var: 'file' type: 'SQFile *'>
-	<var: 'count' type: 'size_t'>
-	<var: 'startIndex' type: 'size_t'>
-	<var: 'elementSize' type: 'size_t'>
-	<export: true>
-	count := interpreterProxy positive32BitValueOf: (interpreterProxy stackValue: 0).
-	startIndex := interpreterProxy positive32BitValueOf: (interpreterProxy stackValue: 1).
-	array := interpreterProxy stackValue: 2.
-	file := self fileValueOf: (interpreterProxy stackValue: 3).
-
-	 (interpreterProxy failed
-	 "buffer can be any indexable words or bytes object except CompiledMethod"
-	 or: [(interpreterProxy isWordsOrBytes: array) not]) ifTrue:
-		[^interpreterProxy primitiveFailFor: PrimErrBadArgument].
-
-	 elementSize := (interpreterProxy isWords: array) ifTrue: [4] ifFalse: [1].
-	 (startIndex >= 1
-	  and: [(startIndex + count - 1) <= (interpreterProxy slotSizeOf: array)]) ifFalse:
-		[^interpreterProxy primitiveFailFor: PrimErrBadIndex].
-
-	"Note: adjust startIndex for zero-origin indexing"
-	bytesWritten := self
-						sqFile: file
-						Write: count * elementSize
-						From: (interpreterProxy cCoerce: (interpreterProxy firstIndexableField: array) to: #'char *')
-						At: startIndex - 1 * elementSize.
-	interpreterProxy failed ifFalse:
-		[interpreterProxy pop: 5 thenPush: (interpreterProxy integerObjectOf: bytesWritten // elementSize)]! !
-
-!FilePlugin methodsFor: 'file primitives' stamp: 'ar (auto pragmas 12/08) 5/13/2000 14:51'!
-setMacFile: fileName Type: typeString AndCreator: creatorString
-	"Exported entry point for the VM. Needed for image saving only and no-op on anything but Macs."
-	<export: true>
-	<var: #fileName type: 'char *'>
-	<var: #typeString type: 'char *'>
-	<var: #creatorString type: 'char *'>
-	^self cCode: 'dir_SetMacFileTypeAndCreator(fileName, strlen(fileName), typeString, creatorString)'.! !
-
-!FilePlugin methodsFor: 'initialize-release' stamp: 'eem 6/22/2011 11:57'!
-initialiseModule
-	<export: true>
-	sCCPfn := interpreterProxy ioLoadFunction: 'secCanCreatePathOfSize' From: 'SecurityPlugin'.
-	sCDPfn := interpreterProxy ioLoadFunction: 'secCanDeletePathOfSize' From: 'SecurityPlugin'.
-	sCGFTfn := interpreterProxy ioLoadFunction: 'secCanGetFileTypeOfSize' From: 'SecurityPlugin'.
-	sCLPfn := interpreterProxy ioLoadFunction: 'secCanListPathOfSize' From: 'SecurityPlugin'.
-	sCSFTfn := interpreterProxy ioLoadFunction: 'secCanSetFileTypeOfSize' From: 'SecurityPlugin'.
-	sDFAfn := interpreterProxy ioLoadFunction: 'secDisableFileAccess' From: 'SecurityPlugin'.
-	sCDFfn := interpreterProxy ioLoadFunction: 'secCanDeleteFileOfSize' From: 'SecurityPlugin'.
-	sCOFfn := interpreterProxy ioLoadFunction: 'secCanOpenFileOfSizeWritable' From: 'SecurityPlugin'.
-	sCRFfn := interpreterProxy ioLoadFunction: 'secCanRenameFileOfSize' From: 'SecurityPlugin'.
-	sHFAfn := interpreterProxy ioLoadFunction: 'secHasFileAccess' From: 'SecurityPlugin'.
-	^self cCode: [self sqFileInit] inSmalltalk: [true]! !
-
-!FilePlugin methodsFor: 'initialize-release' stamp: 'JMM (auto pragmas 12/08) 1/21/2002 11:03'!
-moduleUnloaded: aModuleName
-	"The module with the given name was just unloaded.
-	Make sure we have no dangling references."
-	<export: true>
-	<var: #aModuleName type: 'char *'>
-	(aModuleName strcmp: 'SecurityPlugin') = 0 ifTrue:[
-		"The security plugin just shut down. How odd."
-		sCCPfn := sCDPfn := sCGFTfn := sCLPfn := sCSFTfn := sDFAfn := sCDFfn := sCOFfn := sCRFfn := sHFAfn := 0.
-	].! !
-
-!FilePlugin methodsFor: 'initialize-release' stamp: 'ar (auto pragmas 12/08) 5/12/2000 16:54'!
-shutdownModule
-	<export: true>
-	^self cCode: 'sqFileShutdown()' inSmalltalk:[true]! !
-
-!FilePlugin methodsFor: 'security primitives' stamp: 'eem 7/10/2009 12:11'!
-primitiveDisableFileAccess
-	<export: true>
-	"If the security plugin can be loaded, use it to turn off file access
-	 If not, assume it's ok"
-	sDFAfn ~= 0 ifTrue:
-		[self cCode: '((sqInt (*)(void))sDFAfn)()']! !
-
-!FilePlugin methodsFor: 'security primitives' stamp: 'tpr (auto pragmas 12/08) 12/30/2005 15:41'!
-primitiveHasFileAccess
-	|  hasAccess |
-	<export: true>
-	"If the security plugin can be loaded, use it to check . 
-	If not, assume it's ok"
-	sHFAfn ~= 0
-		ifTrue: [hasAccess := self cCode: ' ((sqInt (*)(void))sHFAfn)()' inSmalltalk: [true]]
-		ifFalse: [hasAccess := true].
-	interpreterProxy pop: 1.
-	interpreterProxy pushBool: hasAccess! !
-
-!FilePlugin class methodsFor: 'translation' stamp: 'eem 1/21/2016 16:46'!
-declareCVarsIn: aCCodeGenerator
-
-	self declareC:  #('sCCPfn' 'sCDFfn' 'sCDPfn' 'sCGFTfn' 'sCLPfn' 'sCOFfn' 'sCRFfn' 'sCSFTfn' 'sDFAfn' 'sHFAfn')
-		as: #'void *'
-		in: aCCodeGenerator.
-	aCCodeGenerator addHeaderFile: '"FilePlugin.h"'! !
-
-!FilePlugin class methodsFor: 'translation' stamp: 'tpr 5/23/2001 17:09'!
-hasHeaderFile
-	"If there is a single intrinsic header file to be associated with the plugin, here is where you want to flag"
-	^true! !
-
-!FilePlugin class methodsFor: 'translation' stamp: 'dtl 3/25/2015 20:26'!
-requiredMethodNames
-	"fileValueOf: nd fileRecordSize are called (questionably so) by support code for DropPlugin"
-
-	^ super requiredMethodNames, #( fileValueOf: fileRecordSize )! !
-
-!FilePlugin class methodsFor: 'translation' stamp: 'tpr 7/4/2001 15:12'!
-requiresCrossPlatformFiles
-	"this plugin requires cross platform files in order to work"
-	^true! !
-
-!FilePlugin class methodsFor: 'translation' stamp: 'tpr 11/29/2000 22:37'!
-requiresPlatformFiles
-	"this plugin requires platform specific files in order to work"
-	^true! !
-
-!FilePlugin class methodsFor: 'class initialization' stamp: 'ar 5/12/2000 16:04'!
-initialize
-	"FilePlugin initialize"
-	DirEntryFound := 0.
-	DirNoMoreEntries := 1.
-	DirBadPath := 2.! !
-
-!FilePlugin class methodsFor: 'simulation' stamp: 'ar 5/11/2000 22:13'!
-simulatorClass
-	^FilePluginSimulator! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'dtl 5/8/2011 21:56'!
-addressOf: aCVariableOrDataStructure
-	"Implemented in support code for primitiveStdioHandles"
-	^0! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 2/3/2015 18:33'!
-createDirectory: aString
-	^[FileDirectory default primCreateDirectory: aString.
-	   true]
-		on: Error
-		do: [:ex| false]
-	! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 11/20/2014 18:21'!
-fileValueOf: objectPointer
-	| index file |
-	index := (interpreterProxy isIntegerObject: objectPointer)
-				ifTrue: [interpreterProxy integerValueOf: objectPointer]
-				ifFalse:
-					[((interpreterProxy isBytes: objectPointer)
-					  and: [(interpreterProxy byteSizeOf: objectPointer) = (self sizeof: #SQFile)]) ifFalse:
-						[interpreterProxy primitiveFail.
-						 ^nil].
-					interpreterProxy longAt: objectPointer + interpreterProxy baseHeaderSize].
-	file := openFiles at: index.
-	"this attempts to preserve file positions across snapshots when debugging the VM
-	 requires saving an image in full flight and pushing it over the cliff time after time..."
-	(file closed and: [states includesKey: file]) ifTrue:
-		[[:pos :isBinary|
-		  file reopen; position: pos.
-		  isBinary ifTrue:
-			[file binary]] valueWithArguments: (states at: file)].
-	^file! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'ar 5/11/2000 22:11'!
-makeDirEntryName: entryName size: entryNameSize
-	createDate: createDate modDate: modifiedDate
-	isDir: dirFlag fileSize: fileSize
-
-	^interpreterProxy
-		makeDirEntryName: entryName size: entryNameSize
-		createDate: createDate modDate: modifiedDate
-		isDir: dirFlag fileSize: fileSize
-! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 6/10/2010 15:59'!
-primitiveDirectoryEntry
-	^interpreterProxy interpreter primitiveDirectoryEntry! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 6/10/2010 16:25'!
-primitiveDirectoryLookup
-	^interpreterProxy interpreter primitiveDirectoryLookup! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'ar 5/11/2000 22:12'!
-primitiveFileRename
-	^interpreterProxy primitiveFileRename! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 3/18/2014 14:09'!
-recordStateOf: file
-	([file position]
-			on: Error
-			do: [:ex| nil]) ifNotNil:
-		[:position|
-		states at: file put: {position. file isBinary}]! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'dtl 4/6/2013 14:50'!
-sizeof: objectSymbolOrClass
-	"In the simulator file handles are just integer indices into openFiles and so need only be BytesPerWord big."
-	^objectSymbolOrClass == #SQFile
-		ifTrue: [self bytesPerWord]
-		ifFalse: [super sizeof: objectSymbolOrClass]! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 10/1/2014 16:25'!
-sqFile: file Read: count Into: byteArrayIndex At: startIndex
-	| interpreter |
-	interpreter := interpreterProxy interpreter.
-	[[startIndex to: startIndex + count - 1 do:
-		[ :i |
-		file atEnd ifTrue:
-			[(file isKindOf: FakeStdinStream) ifTrue: [file atEnd: false].
-			 ^i - startIndex].
-		interpreter
-			byteAt: byteArrayIndex + i
-			put: file next asInteger]]
-			on: Error
-			do: [:ex|
-				(file isKindOf: TranscriptStream) ifFalse: [ex pass].
-				^0]]
-		ensure: [self recordStateOf: file].
-	^count! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 3/18/2014 14:11'!
-sqFile: file SetPosition: newPosition
-	file position: newPosition.
-	self recordStateOf: file! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 3/18/2014 14:11'!
-sqFile: file Truncate: truncatePosition
-	file truncate: truncatePosition.
-	self recordStateOf: file! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 3/18/2014 14:11'!
-sqFile: file Write: count From: byteArrayIndex At: startIndex
-	| interpreter |
-	interpreter := interpreterProxy interpreter.
-	file isBinary
-		ifTrue:
-			[startIndex to: startIndex + count - 1 do:
-				[ :i | file nextPut: (interpreter byteAt: byteArrayIndex + i)]]
-		ifFalse:
-			[startIndex to: startIndex + count - 1 do:
-				[ :i | | byte |
-				byte := interpreter byteAt: byteArrayIndex + i.
-				file nextPut: (Character value: (byte == 12 "lf" ifTrue: [15"cr"] ifFalse: [byte]))]].
-	self recordStateOf: file.
-	^count! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 6/22/2011 12:14'!
-sqFileAtEnd: file
-	^file atEnd! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 3/18/2014 14:11'!
-sqFileClose: file
-	file close.
-	self recordStateOf: file! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 6/22/2011 12:43'!
-sqFileDeleteName: nameIndex Size: nameSize
-	| path |
-	path := interpreterProxy interpreter asString: nameIndex size: nameSize.
-	(StandardFileStream isAFileNamed: path) ifFalse:
-		[^interpreterProxy primitiveFail].
-	[FileDirectory deleteFilePath: path]
-		on: Error
-		do: [:ex| interpreterProxy primitiveFail]! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 6/22/2011 12:48'!
-sqFileFlush: file
-	^file flush! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 6/22/2011 12:49'!
-sqFileGetPosition: file
-	^file position! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 6/22/2011 12:56'!
-sqFileRenameOld: oldNameIndex Size: oldNameSize New: newNameIndex Size: newNameSize
-	| oldPath newPath |
-	oldPath := FileDirectory default fullNameFor: (interpreterProxy interpreter asString: oldNameIndex size: oldNameSize).
-	newPath := FileDirectory default fullNameFor: (interpreterProxy interpreter asString: newNameIndex size: newNameSize).
-	((StandardFileStream isAFileNamed: oldPath)
-	 and: [(StandardFileStream isAFileNamed: newPath) not]) ifFalse:
-		[^interpreterProxy primitiveFail].
-	[FileDirectory default primRename: oldPath to: newPath]
-		on: Error
-		do: [:ex| interpreterProxy primitiveFail]! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 6/22/2011 12:56'!
-sqFileSize: file
-	^file size! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'eem 6/21/2012 12:58'!
-sqFileStdioHandlesInto: anArray
-	(interpreterProxy transcript ~~ Transcript
-	 or: [UIManager default confirm: 'clear transcript?']) ifTrue:
-		[interpreterProxy transcript clear].
-	"See FilePluginSimulator>>initialiseModule"
-	anArray
-		at: 1 put: 0;
-		at: 2 put: 1;
-		at: 3 put: 2.
-	^7! !
-
-!FilePluginSimulator methodsFor: 'simulation' stamp: 'monty 9/26/2015 22:26'!
-sqFileSync: file
-	^file sync! !
-
-!FilePluginSimulator methodsFor: 'initialize-release' stamp: 'eem 6/22/2011 12:00'!
-close  "close any files that ST may have opened"
-	openFiles do: [:f | f close]! !
-
-!FilePluginSimulator methodsFor: 'initialize-release' stamp: 'eem 3/18/2014 14:10'!
-initialiseModule
-	"See FilePluginSimulator>>sqFileStdioHandlesInto:"
-	(openFiles := Dictionary new)
-		at: 0 put: (FakeStdinStream for: interpreterProxy interpreter); "stdin"
-		at: 1 put: Transcript; "stdout"
-		at: 2 put: Transcript. "stderr"
-	states := IdentityDictionary new.
-	^super initialiseModule! !
-
-!FilePluginSimulator methodsFor: 'file primitives' stamp: 'eem 6/22/2011 13:48'!
-fileOpenName: nameIndex size: nameSize write: writeFlag secure: secureFlag
-	"Open the named file, possibly checking security. Answer the file oop."
-	| path f index |
-	path := interpreterProxy interpreter asString: nameIndex size: nameSize.
-	f := writeFlag
-			ifTrue: [FileStream fileNamed: path]
-			ifFalse:
-				[(StandardFileStream isAFileNamed: path) ifTrue:
-					[FileStream readOnlyFileNamed: path]].
-	f ifNil: [^interpreterProxy primitiveFail].
-	f binary.
-	index := openFiles size + 1.
-	openFiles at: index put: f.
-	^interpreterProxy integerObjectOf: index! !
-
-!FilePluginSimulator methodsFor: 'file security' stamp: 'ar 2/5/2001 19:23'!
-ioCanCreatePath: dirNameIndex OfSize: dirNameSize
-	"Return true if we're allowed to create a directory with the given name"
-	^true! !
-
-!FilePluginSimulator methodsFor: 'file security' stamp: 'ar 2/5/2001 18:16'!
-ioCanDeleteFile: nameIndex OfSize: nameSize
-	"Return true if we're allowed to delete the file with the given name"
-	^true! !
-
-!FilePluginSimulator methodsFor: 'file security' stamp: 'ar 2/5/2001 18:16'!
-ioCanDeletePath: dirNameIndex OfSize: dirNameSize
-	"Return true if we're allowed to delete the directory with the given name"
-	^true! !
-
-!FilePluginSimulator methodsFor: 'file security' stamp: 'ar 2/5/2001 18:16'!
-ioCanGetFileType: fileNameIndex OfSize: fileNameSize
-	"Return true if we're allowed to retrieve the (mac) file type of the given file."
-	^true! !
-
-!FilePluginSimulator methodsFor: 'file security' stamp: 'ar 2/5/2001 18:17'!
-ioCanListPath: pathNameIndex OfSize: pathNameSize
-	"Return true if we're allowed to list the contents of the given directory"
-	^true! !
-
-!FilePluginSimulator methodsFor: 'file security' stamp: 'ar 2/5/2001 18:17'!
-ioCanOpenFile: nameIndex OfSize: nameSize Writable: writeFlag
-	"Return true if we're allowed to open the given file (possibly in write mode)"
-	^true! !
-
-!FilePluginSimulator methodsFor: 'file security' stamp: 'ar 2/5/2001 18:17'!
-ioCanRenameFile: oldNameIndex OfSize: oldNameSize
-	"Return true if we're allowed to rename the given file"
-	^true! !
-
-!FilePluginSimulator methodsFor: 'file security' stamp: 'ar 2/5/2001 18:18'!
-ioCanSetFileType: fileNameIndex OfSize: fileNameSize
-	"Return true if we're allowed to set the (mac) file type and creator on the given file"
-	^true! !
-
-!FilePluginSimulator class methodsFor: 'translation' stamp: 'tpr 5/14/2001 12:34'!
-shouldBeTranslated
-"This class should not be translated"
-	^false! !
-
 !FloatArrayPlugin methodsFor: 'arithmetic primitives' stamp: 'ar 5/5/2010 16:28'!
 primitiveAddFloatArray
 	"Primitive. Add the receiver and the argument, both FloatArrays and store the result into the receiver."
@@ -74867,15 +72581,6 @@ declareCVarsIn: cg
 	cg var: #m23ArgX type: #double.
 	cg var: #m23ArgY type: #double! !
 
-!MiscPrimitivePlugin class methodsFor: 'translation' stamp: 'eem 1/3/2013 12:02'!
-monticelloDescription
-	"Override to include the primitive-supplying classes."
-	"self monticelloDescription"
-	^super monticelloDescription, '\' withCRs,
-	 ((self translatedPrimitives
-		collect: [:pair| CCodeGenerator monticelloDescriptionFor: (Smalltalk classNamed: pair first)])
-			asSet asArray sort reduce: [:a :b| a, '\' withCRs, b])! !
-
 !MiscPrimitivePlugin class methodsFor: 'translation' stamp: 'bf 10/1/2014 10:03'!
 translateInDirectory: directory doInlining: inlineFlag
 "handle a special case code string rather than normal generated code."
@@ -76361,12 +74066,6 @@ moduleName
 !SoundGenerationPlugin class methodsFor: 'translation' stamp: 'ar 2/3/2001 18:16'!
 declareCVarsIn: cg
 	cg addHeaderFile: '"SoundGenerationPlugin.h"'.! !
-
-!SoundGenerationPlugin class methodsFor: 'translation' stamp: 'eem 1/3/2013 11:51'!
-monticelloDescription
-	"Override to include the AbstractSound class."
-	"self monticelloDescription"
-	^super monticelloDescription, '\' withCRs, (CCodeGenerator monticelloDescriptionFor: AbstractSound)! !
 
 !SoundGenerationPlugin class methodsFor: 'accessing' stamp: 'tpr 5/23/2001 17:11'!
 hasHeaderFile
@@ -87645,269 +85344,6 @@ requiresPlatformFiles
 	"this plugin requires platform specific files in order to work"
 	^true! !
 
-!TestOSAPlugin methodsFor: 'AppleEvents prims' stamp: 'acg 9/23/1999 22:49'!
-primAECoerceDesc: typeCode to: result
-
-	|rcvr |
-	rcvr := self 	primitive: 	'primAECoerceDesc'
-				parameters:	#(DescType AEDesc)
-				receiver:	#AEDesc.
-	^(self 
-		cCode: 'AECoerceDesc(rcvr,*typeCode,result)'
-		inSmalltalk: [[rcvr]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'AppleEvents prims' stamp: 'acg 9/20/1999 12:37'!
-primAECreateDesc: typeCode from: aString
-
-	|rcvr size |
-	rcvr := self 	primitive: 	'primAECreateDesc'
-				parameters:	#(DescType String)
-				receiver:	#AEDesc.
-	size := aString size.
-	^(self 
-		cCode: 'AECreateDesc(*typeCode, aString, size, rcvr)'
-		inSmalltalk: [[rcvr. size]. -1]) asOop: Unsigned
-! !
-
-!TestOSAPlugin methodsFor: 'AppleEvents prims' stamp: 'acg 9/20/1999 14:16'!
-primAEDescToString: aString
-
-	| rcvr size |
-	rcvr := self	primitive: 	'primAEDescToString'
-				parameters: #(String)
-				receiver: #AEDesc.
-	size := aString size.
-	self cCode: 'BlockMove(*(rcvr->dataHandle), aString, size)'
-		 inSmalltalk: [rcvr. size].
-	^aString asOop: String
-
-! !
-
-!TestOSAPlugin methodsFor: 'AppleEvents prims' stamp: 'acg 9/20/1999 12:38'!
-primAEDisposeDesc
-	
-	|rcvr|
-	rcvr :=	self	primitive: 	'primAEDisposeDesc'
-				parameters:	#()
-				receiver: 	#AEDesc.
-	^(self 
-		cCode: 'AEDisposeDesc(rcvr)'
-		inSmalltalk: [[rcvr]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'AppleEvents prims' stamp: 'tpr (auto pragmas 12/08) 12/29/2005 17:22'!
-primAEGetKeyPtr: key type: type actual: ignoreDesc to: bytes
-
-	| rcvr size ignoreSize |
-	<var: #ignoreSize type: 'Size '>
-	rcvr := self	primitive: 	'primAEGetKeyPtr'
-				parameters: #(DescType DescType DescType ByteArray)
-				receiver: #AEDesc.
-	size := ignoreSize := bytes size.
-	^(self cCode: 'AEGetKeyPtr(rcvr, *key, *type, ignoreDesc, bytes, size, &ignoreSize)'
-		 inSmalltalk: [[rcvr. size. ignoreSize]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'Gen''l Mac OS prims' stamp: 'acg 9/20/1999 12:56'!
-primGetHandleSize: anIndex
-
-	|rcvr|
-	rcvr := self	primitive: 'primGetHandleSize'
-				parameters: #(SmallInteger)
-				receiver:	#WordArray.
-	^(self
-		cCode: 'GetHandleSize((Handle) *(rcvr+anIndex))'
-		inSmalltalk: [[rcvr]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'OSA prims' stamp: 'acg 9/20/1999 16:08'!
-primOSACompile: source mode: mode to: object
-
-	|component|
-	component := self primitive: 	'primOSACompile'
-					parameters: #(AEDesc SmallInteger OSAID)
-					receiver:	#ComponentInstance.
-
-	^(self cCode: 'OSACompile(*component,source,mode,object)'
-			inSmalltalk: [[component]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'OSA prims' stamp: 'acg 9/20/1999 16:08'!
-primOSADisplay: source as: type mode: mode to: result
-
-	|component|
-	component := self primitive: 	'primOSADisplay'
-					parameters: #(OSAID DescType SmallInteger AEDesc)
-					receiver:	#ComponentInstance.
-
-	^(self cCode: 'OSADisplay(*component,*source,*type,mode,result)'
-			inSmalltalk: [[component]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'OSA prims' stamp: 'acg 9/20/1999 15:39'!
-primOSADispose: anOSAID
-
-	|component|
-	component := self primitive: 	'primOSADispose'
-					parameters: #(OSAID)
-					receiver:	#ComponentInstance.
-
-	^(self cCode: 'OSADispose(*component,*anOSAID)'
-			inSmalltalk: [[component]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'OSA prims' stamp: 'JMM 10/31/2005 11:59'!
-primOSADoScript: source in: context mode: mode resultType: type to: result
-
-	|component resultsOfCall giLocker |
-	component := self primitive: 	'primOSADoScript'
-					parameters: #(AEDesc OSAID SmallInteger DescType AEDesc)
-					receiver:	#ComponentInstance.
-
-	self cCode: '
-        giLocker = interpreterProxy->ioLoadFunctionFrom("getUIToLock", "");
-        if (giLocker !!= 0) {
-            long *foo;
-            foo = malloc(sizeof(long)*9);
-            foo[0] = 6;
-            foo[1] = OSADoScript;
-            foo[2] = *component;
-            foo[3] = source;
-            foo[4] = *context;
-            foo[5] = *type;
-            foo[6] = mode;
-            foo[7] = result;
-            foo[8] = 0;
-            ((int (*) (void *)) giLocker)(foo);
-            resultsOfCall = interpreterProxy->positive32BitIntegerFor(foo[8]);
-            free(foo);}'
-			inSmalltalk: [[component. giLocker].  resultsOfCall := -1].
-	^resultsOfCall asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'OSA prims' stamp: 'JMM 10/31/2005 11:59'!
-primOSAExecute: script in: context mode: mode to: result
-
-	|component giLocker resultsOfCall |
-	component := self primitive: 	'primOSAExecute'
-					parameters: #(OSAID OSAID SmallInteger OSAID)
-					receiver:	#ComponentInstance.
-
-	self cCode: '
-         giLocker = interpreterProxy->ioLoadFunctionFrom("getUIToLock", "");
-         if (giLocker !!= 0) {
-            long *foo;
-            foo = malloc(sizeof(long)*8);
-            foo[0] = 5;
-            foo[1] = OSAExecute;
-            foo[2] = *component;
-            foo[3] = *script;
-            foo[4] = *context;
-            foo[5] = mode;
-            foo[6] = result;
-            foo[7] = 0;
-            ((int (*) (void *)) giLocker)(foo);
-            resultsOfCall = interpreterProxy->positive32BitIntegerFor(foo[7]);
-            free(foo); }
-'
-			inSmalltalk: [[component. giLocker]. resultsOfCall := -1].
-	^resultsOfCall asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'OSA prims' stamp: 'acg 9/25/1999 15:01'!
-primOSAGetScriptInfo: aScriptID type: aDescType to: resultData
-
-	|component|
-	component := self	primitive: 	'primOSAGetScriptInfo'
-						parameters: #(OSAID DescType IntegerArray)
-						receiver:	#ComponentInstance.
-	
-	^(self cCode: 'OSAGetScriptInfo(*component,*aScriptID,*aDescType, (long *)resultData)'
-			inSmalltalk: [[component]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'OSA prims' stamp: 'acg 9/25/1999 17:25'!
-primOSAGetSource: aScriptID type: aDescType to: resultData
-
-	|component|
-	component := self	primitive: 	'primOSAGetSource'
-						parameters: #(OSAID DescType AEDesc)
-						receiver:	#ComponentInstance.
-	
-	^(self cCode: 'OSAGetSource(*component,*aScriptID,*aDescType, resultData)'
-			inSmalltalk: [[component]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'OSA prims' stamp: 'acg 9/22/1999 03:08'!
-primOSALoad: source mode: mode to: result
-
-	|component|
-	component := self primitive: 	'primOSALoad'
-					parameters: #(AEDesc SmallInteger OSAID)
-					receiver:	#ComponentInstance.
-
-	^(self cCode: 'OSALoad(*component,source,mode,result)'
-			inSmalltalk: [[component]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'OSA prims' stamp: 'acg 9/25/1999 22:55'!
-primOSAMakeContext: name parent: parent to: result
-
-	|component|
-	component := self primitive: 	#primOSAMakeContext
-					parameters: #(AEDesc OSAID OSAID)
-					receiver:	#ComponentInstance.
-
-	^(self cCode: 'OSAMakeContext(*component,name,*parent,result)'
-			inSmalltalk: [[component]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'OSA prims' stamp: 'acg 9/23/1999 20:39'!
-primOSAScriptError: selector type: type to: result
-
-	|component|
-	component := self primitive: 	'primOSAScriptError'
-					parameters: #(DescType DescType AEDesc)
-					receiver:	#ComponentInstance.
-
-	^(self cCode: 'OSAScriptError(*component,*selector,*type,result)'
-			inSmalltalk: [[component]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'OSA prims' stamp: 'acg 9/20/1999 21:53'!
-primOSAScriptingComponentNameTo: anAEDesc
-
-	|component|
-	component := self	primitive: 	'primOSAScriptingComponentName'
-						parameters: #(AEDesc)
-						receiver:	#ComponentInstance.
-	
-	^(self cCode: 'OSAScriptingComponentName(*component,anAEDesc)'
-			inSmalltalk: [[component]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'OSA prims' stamp: 'acg 9/22/1999 07:51'!
-primOSAStore: source resultType: type mode: mode to: result
-
-	|component|
-	component := self primitive: 	#primOSAStore
-					parameters: #(OSAID DescType SmallInteger AEDesc)
-					receiver:	#ComponentInstance.
-
-	^(self cCode: 'OSAStore(*component,*source,*type,mode,result)'
-			inSmalltalk: [[component]. -1]) asOop: Unsigned! !
-
-!TestOSAPlugin methodsFor: 'Component Mgr prims' stamp: 'acg 9/20/1999 23:42'!
-primOpenDefaultConfiguration: type subtype: subtype
-
-	| component |
-	component := self	primitive: 	'primOpenDefaultConfiguration'
-						parameters: #(DescType DescType)
-						receiver:	#ComponentInstance.
-	self	cCode: '*component = OpenDefaultComponent(*type,*subtype)'
-		inSmalltalk: [component at: 0 put: 0].
-	^component asOop: ComponentInstance! !
-
-!TestOSAPlugin class methodsFor: 'as yet unclassified' stamp: 'acg 9/21/1999 01:29'!
-declareCVarsIn: cg
-
-	cg addHeaderFile: '<AppleEvents.h>'.
-	cg addHeaderFile: '<AppleScript.h>'.
-	cg addHeaderFile: '<OSA.h>'.
-	cg addHeaderFile: '<OSAGeneric.h>'.
-	cg addHeaderFile: '<Script.h>'.! !
-
-!TestOSAPlugin class methodsFor: 'translation' stamp: 'JMM 5/30/2001 19:43'!
-requiresPlatformFiles
-	"this plugin requires platform specific files in order to work"
-	^true! !
-
 !UUIDPlugin methodsFor: 'initialize' stamp: 'JMM (auto pragmas 12/08) 10/9/2001 12:47'!
 initialiseModule
 	<export: true>
@@ -89711,13 +87147,6 @@ warpBitsSimulated: n sourceMap: sourceMap
 	"Simulate WarpBlt"
 	^ BitBltSimulation warpBitsFrom: self! !
 
-!TestObjectsAsMethods methodsFor: '*VMMaker-testing' stamp: 'dtl 10/10/2010 18:25'!
-testCrashWithSmallInt
-	"Earlier versions of Squeak and VM would crash the VM on this test, hence
-	the alarming name."
-	self should: [self answer10] raise: MessageNotUnderstood
-! !
-
 !SmalltalkImage methodsFor: '*VMMaker-Interpreter' stamp: 'bak 8/5/2015 15:46'!
 simulatePrimitive: aPrimitive args: args
     "simulate primitives in RSqueak"
@@ -89749,7 +87178,6 @@ simulatePrimitive: aString args: args
 			"rendering state is loaded in the primitive implementations"
 			bb perform: aString asSymbol.
 			^ proxy stackValue: 0].! !
-VMMakerTool initialize!
 VMBasicConstants initialize!
 VMSqueakV3ObjectRepresentationConstants initialize!
 VMStackFrameOffsets initialize!
@@ -89763,7 +87191,6 @@ ObjectMemory initialize!
 NewObjectMemory initialize!
 InterpreterPlugin initialize!
 BalloonEngineBase initialize!
-FilePlugin initialize!
 InflatePlugin initialize!
 DeflatePlugin initialize!
 JPEGReaderPlugin initialize!
