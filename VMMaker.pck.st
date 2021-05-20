@@ -1,16 +1,16 @@
-'From Cuis 5.0 [latest update: #4597] on 14 May 2021 at 9:44:50 am'!
+'From Cuis 5.0 [latest update: #4607] on 20 May 2021 at 5:36:49 pm'!
 'Description VMMaker is the main package for Cuis, Squeak and Pharo for VM and VM plugin work. It can run the VM code in smalltalk, running a separate Smalltalk image. It can also translate the VM and plugins to C.
 
 This package is in Cuis .pck.st format and started from VMMaker-dtl.422.mcz from http://source.squeak.org/VMMaker.html and http://source.squeak.org/VMMaker/ as a verbatim copy, except for convertion to LF for line endings and removal of a couple of name clashes (method parameter breakCount with same name as instance variable in StackInterpreterSimulator).
 
 It is currently updated up to VMMaker-dtl.422.mcz (please keep this reference updated)'!
-!provides: 'VMMaker' 1 9!
+!provides: 'VMMaker' 1 10!
 !requires: 'Identities-UUID' 1 8 nil!
 !requires: 'Balloon' 1 4 nil!
 !requires: 'Compatibility-VMMaker' 1 1 nil!
 !requires: 'FFI' 1 33 nil!
-!requires: 'Sound' 1 23 nil!
 !requires: 'Compression' 1 27 nil!
+!requires: 'Sound' 1 23 nil!
 SystemOrganization addCategory: 'VMMaker-Building'!
 SystemOrganization addCategory: 'VMMaker-Interpreter'!
 SystemOrganization addCategory: 'VMMaker-InterpreterSimulation'!
@@ -86905,6 +86905,16 @@ requiresConcreteImplementation
 	| marker |
 	marker := self markerOrNil.
 	^ marker notNil and: [marker = #subclassResponsibility].! !
+
+!FloatArray class methodsFor: '*VMMaker-plugin generation' stamp: 'acg 9/18/1999 17:07'!
+ccg: cg prolog: aBlock expr: aString index: anInteger
+
+	^cg ccgLoad: aBlock expr: aString asWBFloatPtrFrom: anInteger! !
+
+!FloatArray class methodsFor: '*VMMaker-plugin generation' stamp: 'acg 9/17/1999 01:14'!
+ccgDeclareCForVar: aSymbolOrString
+
+	^'float *', aSymbolOrString! !
 
 !Float32Array class methodsFor: '*VMMaker-plugin generation' stamp: 'jmv 5/13/2021 17:21:50'!
 ccg: cg prolog: aBlock expr: aString index: anInteger
