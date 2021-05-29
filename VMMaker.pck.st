@@ -1,16 +1,16 @@
-'From Cuis 5.0 [latest update: #4607] on 20 May 2021 at 5:36:49 pm'!
+'From Cuis 5.0 [latest update: #4618] on 29 May 2021 at 4:57:30 pm'!
 'Description VMMaker is the main package for Cuis, Squeak and Pharo for VM and VM plugin work. It can run the VM code in smalltalk, running a separate Smalltalk image. It can also translate the VM and plugins to C.
 
 This package is in Cuis .pck.st format and started from VMMaker-dtl.422.mcz from http://source.squeak.org/VMMaker.html and http://source.squeak.org/VMMaker/ as a verbatim copy, except for convertion to LF for line endings and removal of a couple of name clashes (method parameter breakCount with same name as instance variable in StackInterpreterSimulator).
 
 It is currently updated up to VMMaker-dtl.422.mcz (please keep this reference updated)'!
-!provides: 'VMMaker' 1 10!
+!provides: 'VMMaker' 1 11!
 !requires: 'Identities-UUID' 1 8 nil!
 !requires: 'Balloon' 1 4 nil!
 !requires: 'Compatibility-VMMaker' 1 1 nil!
+!requires: 'Sound' 1 23 nil!
 !requires: 'FFI' 1 33 nil!
 !requires: 'Compression' 1 27 nil!
-!requires: 'Sound' 1 23 nil!
 SystemOrganization addCategory: 'VMMaker-Building'!
 SystemOrganization addCategory: 'VMMaker-Interpreter'!
 SystemOrganization addCategory: 'VMMaker-InterpreterSimulation'!
@@ -18369,6 +18369,21 @@ ccgLoad: aBlock expr: aString asRawOopFrom: anInteger
 	^aBlock value: (String streamContents: [:aStream | aStream
 		nextPutAll: 'interpreterProxy stackValue: ';
 		nextPutAll: anInteger asString])! !
+
+!SmartSyntaxPluginCodeGenerator methodsFor: 'coercing' stamp: 'jmv 5/27/2021 12:25:49'!
+ccgLoad: aBlock expr: aString asUnsignedCharPtrFrom: anInteger andThen: valBlock
+	"Answer codestring for character pointer to first indexable field of object (without validating side-effect unless specified in valBlock), as described in comment to ccgLoad:expr:asRawOopFrom:"
+
+	^(valBlock value: anInteger), '.',
+	 (aBlock value: (String streamContents: [:aStream | aStream
+		nextPutAll: 'self cCoerce: (interpreterProxy firstIndexableField:';
+		crtab: 4;
+		nextPutAll: '(interpreterProxy stackValue:';
+		nextPutAll: anInteger asString;
+		nextPutAll:	'))';
+		crtab: 3;
+		nextPutAll: 'to: ''unsigned char *''']))
+	 ! !
 
 !SmartSyntaxPluginCodeGenerator methodsFor: 'coercing' stamp: 'acg 12/17/1999 07:31'!
 ccgLoad: aBlock expr: aString asUnsignedPtrFrom: anInteger andThen: valBlock
@@ -86886,19 +86901,19 @@ ccgDeclareCForVar: aSymbolOrString
 
 	^'sqInt *', aSymbolOrString! !
 
-!ByteArray class methodsFor: '*VMMaker-plugin generation' stamp: 'acg 9/19/1999 00:25'!
+!ByteArray class methodsFor: '*VMMaker-plugin generation' stamp: 'jmv 5/27/2021 12:25:40'!
 ccg: cg prolog: aBlock expr: aString index: anInteger
 
 	^cg 
 		ccgLoad: aBlock 
 		expr: aString 
-		asCharPtrFrom: anInteger
+		asUnsignedCharPtrFrom: anInteger
 		andThen: (cg ccgValBlock: 'isBytes')! !
 
-!ByteArray class methodsFor: '*VMMaker-plugin generation' stamp: 'acg 9/17/1999 01:13'!
+!ByteArray class methodsFor: '*VMMaker-plugin generation' stamp: 'jmv 5/27/2021 12:07:37'!
 ccgDeclareCForVar: aSymbolOrString
 
-	^'char *', aSymbolOrString! !
+	^'unsigned char *', aSymbolOrString! !
 
 !CompiledMethod methodsFor: '*VMMaker-translation' stamp: 'dtl 5/27/2012 17:36'!
 requiresConcreteImplementation
