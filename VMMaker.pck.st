@@ -1,16 +1,16 @@
-'From Cuis 5.0 [latest update: #4618] on 29 May 2021 at 4:57:30 pm'!
+'From Cuis 5.0 [latest update: #4666] on 15 July 2021 at 9:11:00 pm'!
 'Description VMMaker is the main package for Cuis, Squeak and Pharo for VM and VM plugin work. It can run the VM code in smalltalk, running a separate Smalltalk image. It can also translate the VM and plugins to C.
 
 This package is in Cuis .pck.st format and started from VMMaker-dtl.422.mcz from http://source.squeak.org/VMMaker.html and http://source.squeak.org/VMMaker/ as a verbatim copy, except for convertion to LF for line endings and removal of a couple of name clashes (method parameter breakCount with same name as instance variable in StackInterpreterSimulator).
 
 It is currently updated up to VMMaker-dtl.422.mcz (please keep this reference updated)'!
-!provides: 'VMMaker' 1 11!
+!provides: 'VMMaker' 1 12!
+!requires: 'Compression' 1 27 nil!
 !requires: 'Identities-UUID' 1 8 nil!
 !requires: 'Balloon' 1 4 nil!
+!requires: 'FFI' 1 33 nil!
 !requires: 'Compatibility-VMMaker' 1 1 nil!
 !requires: 'Sound' 1 23 nil!
-!requires: 'FFI' 1 33 nil!
-!requires: 'Compression' 1 27 nil!
 SystemOrganization addCategory: 'VMMaker-Building'!
 SystemOrganization addCategory: 'VMMaker-Interpreter'!
 SystemOrganization addCategory: 'VMMaker-InterpreterSimulation'!
@@ -18002,34 +18002,29 @@ emitCHeaderForPrimitivesOn: aStream
 '.
 	aStream cr.! !
 
-!VMPluginCodeGenerator methodsFor: 'C code generator' stamp: 'tpr 5/28/2013 20:07'!
+!VMPluginCodeGenerator methodsFor: 'C code generator' stamp: 'dtl 5/18/2021 10:24'!
 emitCHeaderOn: aStream
 	"Write a C file header onto the given stream."
-
 	aStream nextPutAll: '/* '.
 	aStream nextPutAll: VMMaker headerNotice.
 	aStream nextPutAll: ' */';cr.
 	aStream nextPutAll: (self fileHeaderVersionStampForSourceClass: vmClass).
 	aStream cr; cr.
-
 	aStream nextPutAll:'
+/* Configuration options */
+#include "sqConfig.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
 /* Default EXPORT macro that does nothing (see comment in sq.h): */
 #define EXPORT(returnType) returnType
-
 /* Do not include the entire sq.h file but just those parts needed. */
 /*  The virtual machine proxy definition */
 #include "sqVirtualMachine.h"
-/* Configuration options */
-#include "sqConfig.h"
 /* Platform specific definitions */
 #include "sqPlatformSpecific.h"
-
 #define true 1
 #define false 0
 #define null 0  /* using ''null'' because nil is predefined in Think C */
@@ -18039,13 +18034,10 @@ emitCHeaderOn: aStream
 #define EXPORT(returnType) static returnType
 #endif
 '.
-
 	"Additional header files"
 	self emitHeaderFilesOn: aStream.
-
 	aStream nextPutAll: '
 #include "sqMemoryAccess.h"
-
 '.
 	aStream cr.! !
 
