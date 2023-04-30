@@ -1,16 +1,16 @@
-'From Cuis 5.0 [latest update: #4666] on 15 July 2021 at 9:11:00 pm'!
+'From Cuis 6.0 [latest update: #5772] on 30 April 2023 at 12:05:41 pm'!
 'Description VMMaker is the main package for Cuis, Squeak and Pharo for VM and VM plugin work. It can run the VM code in smalltalk, running a separate Smalltalk image. It can also translate the VM and plugins to C.
 
 This package is in Cuis .pck.st format and started from VMMaker-dtl.422.mcz from http://source.squeak.org/VMMaker.html and http://source.squeak.org/VMMaker/ as a verbatim copy, except for convertion to LF for line endings and removal of a couple of name clashes (method parameter breakCount with same name as instance variable in StackInterpreterSimulator).
 
 It is currently updated up to VMMaker-dtl.422.mcz (please keep this reference updated)'!
-!provides: 'VMMaker' 1 12!
-!requires: 'Compression' 1 27 nil!
+!provides: 'VMMaker' 1 13!
 !requires: 'Identities-UUID' 1 8 nil!
 !requires: 'Balloon' 1 4 nil!
-!requires: 'FFI' 1 33 nil!
 !requires: 'Compatibility-VMMaker' 1 1 nil!
 !requires: 'Sound' 1 23 nil!
+!requires: 'Compression' 1 27 nil!
+!requires: 'FFI' 1 33 nil!
 SystemOrganization addCategory: 'VMMaker-Building'!
 SystemOrganization addCategory: 'VMMaker-Interpreter'!
 SystemOrganization addCategory: 'VMMaker-InterpreterSimulation'!
@@ -2268,110 +2268,6 @@ I am a place to hang various pieces of translation support.!
 
 !Cogit commentStamp: 'dtl 4/2/2012 19:13' prior: 0!
 This is a stub for Cogit, the code generator for the Cog VM.!
-
-!CArray methodsFor: 'int arithmetic' stamp: 'ajh 8/20/2002 00:35'!
->> n
-
-	^ self ptrAddress bitShift: 0 - n! !
-
-!CObjectAccessor methodsFor: 'printing' stamp: 'ar 9/16/1998 21:38'!
-printOn: aStream
-	super printOn: aStream.
-	aStream
-		nextPutAll:' on: ';
-		print: object.! !
-
-!TMethod methodsFor: 'accessing' stamp: 'eem 9/24/2010 09:54'!
-comment
-	^comment! !
-
-!TMethod methodsFor: 'accessing' stamp: 'hg 8/14/2000 15:57'!
-comment: aComment
-
-	comment := aComment ! !
-
-!TMethod methodsFor: 'printing' stamp: 'TPR 3/2/2000 18:36'!
-printOn: aStream
-
-	super printOn: aStream.
-	aStream nextPutAll: ' (', selector, ')'.! !
-
-!TParseNode methodsFor: 'accessing' stamp: 'hg 8/14/2000 15:32'!
-comment: aComment
-
-	comment := aComment ! !
-
-!TParseNode methodsFor: 'testing'!
-isVariable
-
-	^false! !
-
-!TParseNode methodsFor: 'printing'!
-printOn: aStream 
-	"Append a description of the receiver onto the given stream."
-
-	self printOn: aStream level: 0.! !
-
-!TConstantNode methodsFor: 'accessing' stamp: 'ar 7/8/2003 11:04'!
-name
-	^''! !
-
-!TDefineNode methodsFor: 'as yet unclassified' stamp: 'ar 7/8/2003 11:04'!
-name
-	^name! !
-
-!TSwitchStmtNode methodsFor: 'copying' stamp: 'eem 2/9/2009 19:26'!
-postCopy
-	expression := expression copy.
-	cases := (cases collect:
-				[:pair| "<Array with: <Array with: ParseTreeNode> with: TStmtListNode"
-				{ pair first collect: [:labelNode| labelNode copy].
-				   pair last copy }]).
-	otherwiseOrNil := otherwiseOrNil copy! !
-
-!TVariableNode methodsFor: 'as yet unclassified'!
-name
-
-	^name! !
-
-!TVariableNode methodsFor: 'testing'!
-isVariable
-
-	^true! !
-
-!InterpreterPlugin class methodsFor: 'accessing' stamp: 'tpr 12/17/2003 16:52'!
-allCallsOn
-	"Answer a SortedCollection of all the methods that refer to me. Most classes simply defer to SystemDictionary>allCallsOn: but some have special requirements - plugins may have a module name that does not match the class name"
-
-	self theNonMetaClass name ~= self moduleName asSymbol
-		ifTrue:[^super allCallsOn, (self systemNavigation allCallsOn: self moduleName asSymbol)]
-		ifFalse:[^super allCallsOn]! !
-
-!VMStructType class methodsFor: 'accessing class hierarchy' stamp: 'eem 12/11/2010 09:32'!
-addSubclass: aSubclass
-	self voidStructTypeCache.
-	^super addSubclass: aSubclass! !
-
-!VMStructType class methodsFor: 'accessing class hierarchy' stamp: 'eem 12/11/2010 09:32'!
-removeSubclass: aSubclass
-	self voidStructTypeCache.
-	^super removeSubclass: aSubclass! !
-
-!VMStructType methodsFor: 'printing' stamp: 'eem 12/1/2010 10:47'!
-printOn: aStream
-	"A hook to allow subclasses to print their state if useful."
-	<doNotGenerate>
-	super printOn: aStream.
-	self printStateOn: aStream! !
-
-!InterpreterStackPage methodsFor: 'printing' stamp: 'eem 2/12/2009 14:55'!
-printOn: aStream
-	<doNotGenerate>
-	super printOn: aStream.
-	aStream nextPut: $@; print: baseAddress; space.
-	self isFree
-		ifTrue: [aStream nextPutAll: 'free']
-		ifFalse: [aStream print: baseFP; nextPutAll: '<->'; print: headFP]! !
 
 !VMBasicConstants class methodsFor: 'class initialization' stamp: 'dtl 8/28/2011 19:45'!
 initialize
@@ -13494,6 +13390,11 @@ table20161221
 	^ self ptrAddress bitShift: n! !
 
 !CArray methodsFor: 'int arithmetic' stamp: 'ajh 8/20/2002 00:35'!
+>> n
+
+	^ self ptrAddress bitShift: 0 - n! !
+
+!CArray methodsFor: 'int arithmetic' stamp: 'ajh 8/20/2002 00:35'!
 bitAnd: n
 
 	^ self ptrAddress bitAnd: n! !
@@ -13663,6 +13564,13 @@ intAt: index put: value
 setSimArray: anArray
 
 	simArray := anArray! !
+
+!CObjectAccessor methodsFor: 'printing' stamp: 'ar 9/16/1998 21:38'!
+printOn: aStream
+	super printOn: aStream.
+	aStream
+		nextPutAll:' on: ';
+		print: object.! !
 
 !CObjectAccessor methodsFor: 'printing' stamp: 'MPW 1/1/1901 22:01'!
 printOnStream: aStream
@@ -15374,12 +15282,12 @@ reportRecursiveMethods
 returnPrefixFromVariable: aName
 	^aName! !
 
-!CCodeGenerator methodsFor: 'utilities' stamp: 'eem 5/20/2010 20:46'!
+!CCodeGenerator methodsFor: 'utilities' stamp: 'dtl 4/30/2023 11:58:13'!
 sortMethods: aTMethodCollection
 	"We need to define this since different Squeak versions answer different results
 	 for asSortedCollection and if sort order changes, generated code changes too."
 	^aTMethodCollection asSortedCollection:
-		[:a :b| a selector caseSensitiveLessOrEqual: b selector]! !
+		[:a :b| a selector <= b selector]! !
 
 !CCodeGenerator methodsFor: 'utilities' stamp: 'TPR 3/2/2000 11:45'!
 translationMethodClass
@@ -19408,6 +19316,15 @@ args
 
 	^args! !
 
+!TMethod methodsFor: 'accessing' stamp: 'eem 9/24/2010 09:54'!
+comment
+	^comment! !
+
+!TMethod methodsFor: 'accessing' stamp: 'hg 8/14/2000 15:57'!
+comment: aComment
+
+	comment := aComment ! !
+
 !TMethod methodsFor: 'accessing' stamp: 'eem 3/3/2009 08:59'!
 declarationAt: aVariableName
 	^declarations at: aVariableName ifAbsent: [#sqInt, ' ', aVariableName]! !
@@ -19556,6 +19473,12 @@ statements
 !TMethod methodsFor: 'accessing' stamp: 'eem 2/10/2009 13:53'!
 static: aBoolean
 	static := aBoolean! !
+
+!TMethod methodsFor: 'printing' stamp: 'TPR 3/2/2000 18:36'!
+printOn: aStream
+
+	super printOn: aStream.
+	aStream nextPutAll: ' (', selector, ')'.! !
 
 !TMethod methodsFor: 'utilities' stamp: 'dtl 11/21/2020 17:24'!
 addTypeForSelf
@@ -21102,14 +21025,14 @@ emitCFunctionPrototype: aStream generator: aCodeGen
 			^self]].
 	self emitCFunctionPrototype: aStream generator: aCodeGen newlineBeforeName: false! !
 
-!TMethod methodsFor: 'C code generation' stamp: 'dtl 11/21/2020 19:23'!
+!TMethod methodsFor: 'C code generation' stamp: 'dtl 4/30/2023 12:02:47'!
 emitCFunctionPrototype: aStream generator: aCodeGen newlineBeforeName: newlineBeforeName "<Boolean>"
 	"Emit a C function header for this method onto the given stream."
 
 	export 
-		ifTrue:[aStream nextPutAll: 'EXPORT('; nextPutAll: returnType; nextPut: $)]
+		ifTrue:[aStream nextPutAll: 'EXPORT('; nextPutAll: returnType asString; nextPut: $)]
 		ifFalse:[(self isStaticIn: aCodeGen) ifTrue:[aStream nextPutAll: 'static '].
-				aStream nextPutAll: returnType].
+				aStream nextPutAll: returnType asString].
 	newlineBeforeName ifTrue: [aStream cr] ifFalse: [aStream space].
 	(returnType last = $)
 	and: [self string: returnType includesSubstring: (aCodeGen cFunctionNameFor: self selectorForCodeGeneration)]) ifTrue:
@@ -21119,7 +21042,7 @@ emitCFunctionPrototype: aStream generator: aCodeGen newlineBeforeName: newlineBe
 		nextPutAll: (aCodeGen cFunctionNameFor: self selectorForCodeGeneration);
 		nextPut: $(.
 	args isEmpty
-		ifTrue: [aStream nextPutAll: #void]
+		ifTrue: [aStream nextPutAll: 'void']
 		ifFalse:
 			[args
 				do: [:arg| aStream nextPutAll: (self declarationAt: arg)]
@@ -21768,6 +21691,11 @@ fromContext: aContext primitive: aString parameters: aClassList receiver: aClass
 		receiver: aClass
 ! !
 
+!TParseNode methodsFor: 'accessing' stamp: 'hg 8/14/2000 15:32'!
+comment: aComment
+
+	comment := aComment ! !
+
 !TParseNode methodsFor: 'accessing' stamp: 'acg 12/17/1999 07:21'!
 nameOrValue
 
@@ -21861,6 +21789,11 @@ isSwitch
 isTParseNode
 	^true! !
 
+!TParseNode methodsFor: 'testing'!
+isVariable
+
+	^false! !
+
 !TParseNode methodsFor: 'testing' stamp: 'eem 12/11/2010 12:25'!
 structTargetKind: aCodeGen
 	"Answer if the recever evaluates to a struct or struct pointer
@@ -21874,6 +21807,12 @@ structTargetKindIn: aCodeGen
 	 and hence can be dereferenced using . or ->.  Answer any of
 	 #struct #pointer or nil"
 	^nil! !
+
+!TParseNode methodsFor: 'printing'!
+printOn: aStream 
+	"Append a description of the receiver onto the given stream."
+
+	self printOn: aStream level: 0.! !
 
 !TParseNode methodsFor: 'printing'!
 printOn: aStream level: anInteger 
@@ -22089,7 +22028,7 @@ emitCCodeAsExpressionOn: aStream level: level generator: aCodeGen
 	self emitCCodeOn: aStream level: level generator: aCodeGen.
 	aStream nextPut: $)! !
 
-!TAssignmentNode methodsFor: 'C code generation' stamp: 'asf 10/14/2014 18:53'!
+!TAssignmentNode methodsFor: 'C code generation' stamp: 'dtl 4/30/2023 12:05:09'!
 emitCCodeOn: aStream level: level generator: aCodeGen
 	expression isSwitch ifTrue:
 		[^expression emitCCodeOn: aStream addToEndOfCases: self level: level generator: aCodeGen].
@@ -22098,7 +22037,7 @@ emitCCodeOn: aStream level: level generator: aCodeGen
 		ifTrue:
 			[aStream
 				space;
-				nextPutAll: expression selector;	"+ or -"
+				nextPutAll: expression selector asString;	"+ or -"
 				nextPut: $=;
 				space.
 			expression args first emitCCodeAsArgumentOn: aStream level: level generator: aCodeGen]
@@ -22570,6 +22509,10 @@ printOn: aStream level: level
 	aStream crtab: level.
 	aStream nextPutAll: 'end select'.! !
 
+!TConstantNode methodsFor: 'accessing' stamp: 'ar 7/8/2003 11:04'!
+name
+	^''! !
+
 !TConstantNode methodsFor: 'accessing' stamp: 'acg 12/17/1999 07:19'!
 nameOrValue
 
@@ -22624,6 +22567,10 @@ copyTree
 
 	^self class new
 		setName: name value: value! !
+
+!TDefineNode methodsFor: 'as yet unclassified' stamp: 'ar 7/8/2003 11:04'!
+name
+	^name! !
 
 !TDefineNode methodsFor: 'C code generation' stamp: 'ar 7/8/2003 11:08'!
 emitCCodeOn: aStream level: level generator: aCodeGen
@@ -23579,6 +23526,15 @@ copyTree
 	^self copy
 ! !
 
+!TSwitchStmtNode methodsFor: 'copying' stamp: 'eem 2/9/2009 19:26'!
+postCopy
+	expression := expression copy.
+	cases := (cases collect:
+				[:pair| "<Array with: <Array with: ParseTreeNode> with: TStmtListNode"
+				{ pair first collect: [:labelNode| labelNode copy].
+				   pair last copy }]).
+	otherwiseOrNil := otherwiseOrNil copy! !
+
 !TSwitchStmtNode methodsFor: 'transformations' stamp: 'eem 2/11/2009 12:15'!
 bindVariableUsesIn: aDictionary
 	expression := expression bindVariableUsesIn: aDictionary.
@@ -23924,8 +23880,18 @@ emitCCodeOn: aStream level: level generator: aCodeGen
 		ifTrue: [ aStream nextPutAll: (aCodeGen cLiteralFor: nil) ]
 		ifFalse: [ aStream nextPutAll: (aCodeGen returnPrefixFromVariable: name) ].! !
 
+!TVariableNode methodsFor: 'as yet unclassified'!
+name
+
+	^name! !
+
 !TVariableNode methodsFor: 'testing'!
 isLeaf
+
+	^true! !
+
+!TVariableNode methodsFor: 'testing'!
+isVariable
 
 	^true! !
 
@@ -58438,6 +58404,14 @@ msg: s
 	<var: #s type: 'char *'>
 	self cCode: 'fprintf(stderr, "\n%s: %s", moduleName, s)' inSmalltalk: [Transcript cr; show: self class moduleName , ': ' , s; endEntry]! !
 
+!InterpreterPlugin class methodsFor: 'accessing' stamp: 'tpr 12/17/2003 16:52'!
+allCallsOn
+	"Answer a SortedCollection of all the methods that refer to me. Most classes simply defer to SystemDictionary>allCallsOn: but some have special requirements - plugins may have a module name that does not match the class name"
+
+	self theNonMetaClass name ~= self moduleName asSymbol
+		ifTrue:[^super allCallsOn, (self systemNavigation allCallsOn: self moduleName asSymbol)]
+		ifFalse:[^super allCallsOn]! !
+
 !InterpreterPlugin class methodsFor: 'accessing' stamp: 'RMF 3/27/2000 09:39'!
 isCPP
 	^ false! !
@@ -85572,11 +85546,28 @@ newFor: anUnsimulatedInterpreterPluginClass
 shouldBeTranslated
 	^false! !
 
+!VMStructType methodsFor: 'printing' stamp: 'eem 12/1/2010 10:47'!
+printOn: aStream
+	"A hook to allow subclasses to print their state if useful."
+	<doNotGenerate>
+	super printOn: aStream.
+	self printStateOn: aStream! !
+
 !VMStructType methodsFor: 'printing' stamp: 'eem 12/1/2010 10:50'!
 printStateOn: aStream
 	"A hook to allow subclasses to print their state if useful."
 	<doNotGenerate>
 	^self! !
+
+!VMStructType class methodsFor: 'accessing class hierarchy' stamp: 'eem 12/11/2010 09:32'!
+addSubclass: aSubclass
+	self voidStructTypeCache.
+	^super addSubclass: aSubclass! !
+
+!VMStructType class methodsFor: 'accessing class hierarchy' stamp: 'eem 12/11/2010 09:32'!
+removeSubclass: aSubclass
+	self voidStructTypeCache.
+	^super removeSubclass: aSubclass! !
 
 !VMStructType class methodsFor: 'code generation' stamp: 'dtl 11/21/2020 17:36'!
 checkGenerateFieldAccessors: fieldSpecs bitPosition: firstBitPosition in: surrogateClass
@@ -85920,6 +85911,15 @@ settersReturnValue
 	"Override to get the browser to generate setters that return the
 	 value set, which matches C semantics for field assignments."
 	^true! !
+
+!InterpreterStackPage methodsFor: 'printing' stamp: 'eem 2/12/2009 14:55'!
+printOn: aStream
+	<doNotGenerate>
+	super printOn: aStream.
+	aStream nextPut: $@; print: baseAddress; space.
+	self isFree
+		ifTrue: [aStream nextPutAll: 'free']
+		ifFalse: [aStream print: baseFP; nextPutAll: '<->'; print: headFP]! !
 
 !InterpreterStackPage methodsFor: 'simulation only' stamp: 'eem 2/12/2009 14:13'!
 address
@@ -86802,6 +86802,37 @@ ccgCanConvertFrom: anObject
 
 	^anObject class == self! !
 
+!String methodsFor: '*VMMaker-Translation to C' stamp: 'EstebanLorenzano 12/6/2010 19:19'!
+replaceLastOccurrence: oldSubstring with: newSubstring 
+	"Answer a copy with the last occurrence of oldSubstring replaced by newSubstring."
+
+	" 'int i' replaceLastOccurrence: 'i' with: 'i2' "
+	" 'void *v' replaceLastOccurrence: 'v' with: 'v2' "
+	" 'int intxintxintx' replaceLastOccurrence: 'i' with: 'I2' "
+	" 'int intxintxintx' replaceLastOccurrence: 'FOO' with: 'BAR' "
+	" 'int intxintxintx' replaceLastOccurrence: '' with: 'BAZ' "
+
+	^ self class streamContents: [:ws | | pos rs | 
+			rs := ReadStream on: self.
+			pos := self findLastOccurrenceOfString: oldSubstring startingAt: 1.
+			pos > 0 ifTrue: [ws nextPutAll: (rs next: pos - 1); nextPutAll: newSubstring.
+						rs next: oldSubstring size].
+			ws nextPutAll: rs upToEnd]! !
+
+!String class methodsFor: '*VMMaker-plugin generation' stamp: 'acg 9/19/1999 00:21'!
+ccg: cg prolog: aBlock expr: aString index: anInteger
+
+	^cg 
+		ccgLoad: aBlock 
+		expr: aString 
+		asCharPtrFrom: anInteger
+		andThen: (cg ccgValBlock: 'isBytes')! !
+
+!String class methodsFor: '*VMMaker-plugin generation' stamp: 'acg 9/18/1999 17:10'!
+ccgDeclareCForVar: aSymbolOrString
+
+	^'char *', aSymbolOrString! !
+
 !ArrayedCollection methodsFor: '*VMMaker-simulated image growing' stamp: 'dtl 5/19/2010 15:53'!
 coerceTo: cTypeString sim: interpreterSimulator
 
@@ -86847,37 +86878,6 @@ ccg: cg generateCoerceToValueFrom: aNode on: aStream
 	^cg 
 		generateCoerceToPtr: (self ccgDeclareCForVar: '')
 		fromObject: aNode on: aStream! !
-
-!String methodsFor: '*VMMaker-Translation to C' stamp: 'EstebanLorenzano 12/6/2010 19:19'!
-replaceLastOccurrence: oldSubstring with: newSubstring 
-	"Answer a copy with the last occurrence of oldSubstring replaced by newSubstring."
-
-	" 'int i' replaceLastOccurrence: 'i' with: 'i2' "
-	" 'void *v' replaceLastOccurrence: 'v' with: 'v2' "
-	" 'int intxintxintx' replaceLastOccurrence: 'i' with: 'I2' "
-	" 'int intxintxintx' replaceLastOccurrence: 'FOO' with: 'BAR' "
-	" 'int intxintxintx' replaceLastOccurrence: '' with: 'BAZ' "
-
-	^ self class streamContents: [:ws | | pos rs | 
-			rs := ReadStream on: self.
-			pos := self findLastOccurrenceOfString: oldSubstring startingAt: 1.
-			pos > 0 ifTrue: [ws nextPutAll: (rs next: pos - 1); nextPutAll: newSubstring.
-						rs next: oldSubstring size].
-			ws nextPutAll: rs upToEnd]! !
-
-!String class methodsFor: '*VMMaker-plugin generation' stamp: 'acg 9/19/1999 00:21'!
-ccg: cg prolog: aBlock expr: aString index: anInteger
-
-	^cg 
-		ccgLoad: aBlock 
-		expr: aString 
-		asCharPtrFrom: anInteger
-		andThen: (cg ccgValBlock: 'isBytes')! !
-
-!String class methodsFor: '*VMMaker-plugin generation' stamp: 'acg 9/18/1999 17:10'!
-ccgDeclareCForVar: aSymbolOrString
-
-	^'char *', aSymbolOrString! !
 
 !Array class methodsFor: '*VMMaker-plugin generation' stamp: 'acg 9/19/1999 13:10'!
 ccg: cg prolog: aBlock expr: aString index: anInteger
