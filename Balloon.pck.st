@@ -1,6 +1,6 @@
 'From Cuis 4.2 of 25 July 2013 [latest update: #2327] on 16 May 2015 at 5:28:40.8284 pm'!
 'Description This package includes code required by VMMaker for building the Balloon VM plugin. In any case, Cuis does not use Balloon at all, so this code is only for use by VMMaker'!
-!provides: 'Balloon' 1 4!
+!provides: 'Balloon' 1 5!
 !classDefinition: #BalloonEngineConstants category: #'Balloon-Engine-Pools'!
 SharedPool subclass: #BalloonEngineConstants
 	instanceVariableNames: ''
@@ -1395,7 +1395,7 @@ fullTransformFrom: aMatrix
 
 !BalloonEngine methodsFor: 'initialize' stamp: 'ar 12/30/1998 11:24'!
 initialize
-	externals := OrderedCollection new: 100.
+	externals := OrderedCollection new.
 	span := Bitmap new: 2048.
 	bitBlt := nil.
 	self bitBlt: ((BitBlt toForm: Display) destRect: Display boundingBox; yourself).

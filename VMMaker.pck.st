@@ -4,7 +4,7 @@
 This package is in Cuis .pck.st format and started from VMMaker-dtl.422.mcz from http://source.squeak.org/VMMaker.html and http://source.squeak.org/VMMaker/ as a verbatim copy, except for convertion to LF for line endings and removal of a couple of name clashes (method parameter breakCount with same name as instance variable in StackInterpreterSimulator).
 
 It is currently updated up to VMMaker-dtl.422.mcz (please keep this reference updated)'!
-!provides: 'VMMaker' 1 13!
+!provides: 'VMMaker' 1 14!
 !requires: 'Identities-UUID' 1 8 nil!
 !requires: 'Balloon' 1 4 nil!
 !requires: 'Compatibility-VMMaker' 1 1 nil!
@@ -14753,10 +14753,10 @@ globalsAsSet
 !CCodeGenerator methodsFor: 'public' stamp: 'dtl 12/28/2014 18:52'!
 initialize
 	translationDict := Dictionary new.
-	constants := Dictionary new: 100.
-	variables := OrderedCollection new: 100.
-	variableDeclarations := Dictionary new: 100.
-	methods := Dictionary new: 500.
+	constants := Dictionary new.
+	variables := OrderedCollection new.
+	variableDeclarations := Dictionary new.
+	methods := Dictionary new.
 	macros := Dictionary new.
 	self initializeCTranslationDictionary.
 	receiverDict := Dictionary new.
@@ -15214,7 +15214,7 @@ prepareMethods
 	"Prepare methods for browsing."
 
 	| globals |
-	globals := Set new: 200.
+	globals := Set new.
 	globals addAll: variables.
 	methods do: [ :m |
 		(m locals, m args) do: [ :var |
@@ -15261,7 +15261,7 @@ reportRecursiveMethods
 		visited := translationDict keys asSet.
 		calls := m allCalls asOrderedCollection.
 		5 timesRepeat: [
-			newCalls := Set new: 50.
+			newCalls := Set new.
 			[calls isEmpty] whileFalse: [
 				sel := calls removeFirst.
 				sel = m selector ifTrue: [
@@ -16065,7 +16065,7 @@ printUnboundVariableReferenceWarnings
 
 	| undefinedRefs globalVars knownVars |
 	undefinedRefs := Dictionary new.
-	globalVars := Set new: 100.
+	globalVars := Set new.
 	globalVars addAll: variables.
 	methods do: [ :m |
 		knownVars := globalVars copy.
@@ -16098,11 +16098,11 @@ collectInlineList
 
 	| methodsNotToInline callsOf inlineIt hasCCode nodeCount senderCount
 sel returnTypesOf |
-	methodsNotToInline := Set new: methods size.
+	methodsNotToInline := Set new.
 
 	"build dictionary to record the number of calls to each method"
-	callsOf := Dictionary new: methods size * 2.
-	returnTypesOf := Dictionary new: methods size.
+	callsOf := Dictionary new.
+	returnTypesOf := Dictionary new.
 	methods keys do: [ :s | callsOf at: s put: 0 ].
 	methods do: [ :m | returnTypesOf at: m selector put: m returnType ].
 
@@ -16111,8 +16111,8 @@ sel returnTypesOf |
 		2. determine how many nodes it has
 		3. increment the sender counts of the methods it calls
 		4. determine if it includes any C declarations or code"
-	inlineList := Set new: methods size * 2.
-	inlineReturnTypes := Dictionary new: methods size.
+	inlineList := Set new.
+	inlineReturnTypes := Dictionary new.
 	methods do: [ :m |
 		inlineIt := #dontCare.
 		(translationDict includesKey: m selector) ifTrue: [
@@ -16264,9 +16264,9 @@ each method. Note methods that have inline C code or C declarations."
 
 	| methodsWithCCode sizesOf callsOf hasCCode nodeCount senderCount s
 calls registers selr m |
-	methodsWithCCode := Set new: methods size.
-	sizesOf := Dictionary new: methods size * 2.  "selector -> nodeCount"
-	callsOf := Dictionary new: methods size * 2.  "selector -> senderCount"
+	methodsWithCCode := Set new.
+	sizesOf := Dictionary new.  "selector -> nodeCount"
+	callsOf := Dictionary new.  "selector -> senderCount"
 
 	"For each method, scan its parse tree once to:
 		1. determine if the method contains C code or declarations
@@ -16326,7 +16326,7 @@ pruneUnreachableMethods
 		doNotRemoveMethodList addAll: m allCalls].
 
 	"build a new dictionary of methods from the collection of all the ones to keep"			
-	newMethods := Dictionary new: doNotRemoveMethodList size.
+	newMethods := Dictionary new.
 	doNotRemoveMethodList do:[:sel|
 		methods at: sel ifPresent:[:meth| newMethods at: sel put: meth]].
 	methods := newMethods! !
@@ -16365,7 +16365,7 @@ removeMethodsReferingToGlobals: varList except: methodNames
 !CCodeGenerator methodsFor: 'inlining' stamp: 'tpr 2/27/2004 18:49'!
 retainMethods: aListOfMethodsToKeep
 "add aListOfMethodsToKeep to doNotRemoveMethodList so that they will not be pruned"
-	doNotRemoveMethodList ifNil:[doNotRemoveMethodList := Set new:100].
+	doNotRemoveMethodList ifNil:[doNotRemoveMethodList := Set new ].
 	doNotRemoveMethodList addAll: aListOfMethodsToKeep.
 	^aListOfMethodsToKeep! !
 
@@ -17416,7 +17416,7 @@ generateValue: aTSendNode on: aStream indent: level
 	self assert: aTSendNode receiver args size = aTSendNode args size.
 	substitution := aTSendNode receiver copy.
 	substitution renameLabelsForInliningInto: currentMethod.
-	substitutionDict := Dictionary new: aTSendNode args size * 2.
+	substitutionDict := Dictionary new.
 	aTSendNode receiver args with: aTSendNode args do:
 		[ :argName :exprNode |
 		substitutionDict at: argName put: exprNode].
@@ -17439,7 +17439,7 @@ generateValueAsArgument: aTSendNode on: aStream indent: level
 	self assert: aTSendNode receiver args size = aTSendNode args size.
 	substitution := aTSendNode receiver copy.
 	substitution renameLabelsForInliningInto: currentMethod.
-	substitutionDict := Dictionary new: aTSendNode args size * 2.
+	substitutionDict := Dictionary new.
 	aTSendNode receiver args with: aTSendNode args do:
 		[ :argName :exprNode |
 		substitutionDict at: argName put: exprNode].
@@ -17546,7 +17546,7 @@ initializeCTranslationDictionary
 	"Initialize the dictionary mapping message names to actions for C code generation."
 
 	| pairs |
-	translationDict := Dictionary new: 200.
+	translationDict := Dictionary new.
 	pairs := #(
 	#&				#generateAnd:on:indent:
 	#|				#generateOr:on:indent:
@@ -17677,7 +17677,7 @@ initializeCTranslationDictionary
 	#value:value:			#generateValueAsArgument:on:indent:
 	).
 
-	asArgumentTranslationDict := Dictionary new: 8.
+	asArgumentTranslationDict := Dictionary new.
 	1 to: pairs size by: 2 do: [:i |
 		asArgumentTranslationDict at: (pairs at: i) put: (pairs at: i + 1)].
 ! !
@@ -17733,7 +17733,7 @@ buildSortedVariablesCollection
 
 	| globalNames sorted |
 
-	globalNames := Bag new: globalVariableUsage size.
+	globalNames := Bag new.
 	globalVariableUsage keysAndValuesDo: [:k :v | 
 		(variableDeclarations includesKey: k) ifFalse: 
 			[globalNames add: k withOccurrences: v size]].	
@@ -19623,7 +19623,7 @@ extractInlineDirective
 	sharedCase ifNotNil:[^false]. "don't auto-inline shared code; it gets handled specially"
 	result := #dontCare.
 	methodDirectiveFound := false.
-	newStatements := OrderedCollection new: parseTree statements size.
+	newStatements := OrderedCollection new.
 	parseTree statements do: [ :stmt |
 		(stmt isSend and: [stmt selector = #inline:]) ifTrue: [
 			methodDirectiveFound := true.
@@ -19657,7 +19657,7 @@ maySubstituteGlobal: globalVar in: aCodeGen
 	"We can substitute globalVar into this method provided globalVar is only read, not written."
 
 	writtenToGlobalVarsCache = nil ifTrue:
-		[self computePossibleSideEffectsInto: (Set new: 50) visited: (Set new: 50) in: aCodeGen].
+		[self computePossibleSideEffectsInto: Set new visited: Set new in: aCodeGen].
 	^(writtenToGlobalVarsCache includes: globalVar) not! !
 
 !TMethod methodsFor: 'inlining support' stamp: 'jm 12/13/1998 10:06'!
@@ -19668,7 +19668,7 @@ renameLabelsForInliningInto: destMethod
 	destLabels := destMethod labels asSet.
 	usedLabels := destLabels copy.  "usedLabels keeps track of labels in use"
 	usedLabels addAll: labels.
-	labelMap := Dictionary new: 100.
+	labelMap := Dictionary new.
 	self labels do: [ :l |
 		(destLabels includes: l) ifTrue: [
 			newLabelName := self unusedNamePrefixedBy: 'l' avoiding: usedLabels.
@@ -19742,7 +19742,7 @@ renameVarsForCaseStmt
 
 	| i varMap |
 	i := 1.
-	varMap := Dictionary new: 100.
+	varMap := Dictionary new.
 	args, locals do: [ :v |
 		varMap at: v put: ('t', i printString) asSymbol.
 		i := i + 1.
@@ -19760,7 +19760,7 @@ renameVarsForInliningInto: destMethod except: doNotRename in: aCodeGen
 	destVars addAll: destMethod args.
 	usedVars := destVars copy.  "keeps track of names in use"
 	usedVars addAll: args; addAll: locals.
-	varMap := Dictionary new: 100.
+	varMap := Dictionary new.
 	locals, args do:
 		[ :v |
 		((doNotRename includes: v) not
@@ -19779,7 +19779,7 @@ renameVarsForInliningInto: destMethod in: aCodeGen
 	destVars addAll: destMethod args.
 	usedVars := destVars copy.  "keeps track of names in use"
 	usedVars addAll: args; addAll: locals.
-	varMap := Dictionary new: 100.
+	varMap := Dictionary new.
 	args, locals do: [ :v |
 		(destVars includes: v) ifTrue: [
 			newVarName := self unusedNamePrefixedBy: v avoiding: usedVars.
@@ -19808,8 +19808,8 @@ argAssignmentsFor: meth args: argList in: aCodeGen
 	"Optimization: If the actual parameters are either constants or local variables in the target method (the receiver), substitute them directly into the body of meth. Note that global variables cannot be subsituted because the inlined method might depend on the exact ordering of side effects to the globals."
 
 	| stmtList substitutionDict |
-	stmtList := OrderedCollection new: 100.
-	substitutionDict := Dictionary new: 100.
+	stmtList := OrderedCollection new.
+	substitutionDict := Dictionary new.
 	meth args with: argList do: [ :argName :exprNode |
 		(self isSubstitutableNode: exprNode intoMethod: meth in: aCodeGen) ifTrue: [
 			substitutionDict at: argName put: exprNode.
@@ -19852,7 +19852,7 @@ exitVar: exitVar label: exitLabel
 	labelUsed := false.
 	parseTree nodesDo: [ :node |
 		node isStmtList ifTrue: [
-			newStmts := OrderedCollection new: 100.
+			newStmts := OrderedCollection new.
 			node statements do: [ :stmt |
 				(stmt isReturn) ifTrue: [
 					exitVar = nil ifTrue: [
@@ -19984,7 +19984,7 @@ inlineFunctionCall: aSendNode in: aCodeGen
 	meth renameVarsForInliningInto: self except: doNotRename in: aCodeGen.
 	meth renameLabelsForInliningInto: self.
 	self addVarsDeclarationsAndLabelsOf: meth except: doNotRename.
-	substitutionDict := Dictionary new: meth args size * 2.
+	substitutionDict := Dictionary new.
 	meth args with: argsForInlining do:
 		[ :argName :exprNode |
 		substitutionDict at: argName put: exprNode.
@@ -20019,7 +20019,7 @@ inlineSend: aSendNode directReturn: directReturn exitVar: exitVar in: aCodeGen
 			declarations at: exitVar put: meth returnType, ' ', exitVar.
 		].
 	].
-	inlineStmts := OrderedCollection new: 100.
+	inlineStmts := OrderedCollection new.
 	inlineStmts add: (TLabeledCommentNode new setComment: 'begin ', sel).
 	inlineStmts addAll:
 		(self argAssignmentsFor: meth args: aSendNode args in: aCodeGen).
@@ -20155,7 +20155,7 @@ statementsListsForInliningIn: aCodeGen
 	 We do not want to inline code within assert: sends (because we want the assert to read nicely)."
 
 	| stmtLists |
-	stmtLists := OrderedCollection new: 10.
+	stmtLists := OrderedCollection new.
 	parseTree
 		nodesDo:
 			[:node|
@@ -20244,7 +20244,7 @@ tryToInlineMethodsIn: aCodeGen
 		[complete := true.
 		 ^false].
 	didSomething := false.
-	sendsToInline := Dictionary new: 100.
+	sendsToInline := Dictionary new.
 	parseTree
 		nodesDo:
 			[:node|
@@ -20267,7 +20267,7 @@ tryToInlineMethodsIn: aCodeGen
 	stmtLists := self statementsListsForInliningIn: aCodeGen.
 	stmtLists do:
 		[:stmtList|
-		newStatements := OrderedCollection new: 100.
+		newStatements := OrderedCollection new.
 		stmtList statements do:
 			[:stmt|
 			(self inlineCodeOrNilForStatement: stmt in: aCodeGen)
@@ -20373,7 +20373,7 @@ fixUpReturns: argCount postlog: postlog
 	| newStmts |
 	parseTree nodesDo: [:node |
 		node isStmtList ifTrue: [
-			newStmts := OrderedCollection new: 100.
+			newStmts := OrderedCollection new.
 			node statements do: [:stmt |
 				stmt isReturn
 					ifTrue: [
@@ -20644,7 +20644,7 @@ extractDirective: theSelector valueBlock: aBlock default: defaultResult
 	 Answer the result of evaluating aBock with the send node,
 	  or defaultResult if there is no labelling directive."	result := defaultResult.
 	found := false.
-	newStatements := OrderedCollection new: parseTree statements size.
+	newStatements := OrderedCollection new.
 	parseTree statements do:
 		[ :stmt |
 		(stmt isSend
@@ -20683,7 +20683,7 @@ extractExportDirective
 	| result newStatements methodDirectiveFound |
 	result := false.
 	methodDirectiveFound := false.
-	newStatements := OrderedCollection new: parseTree statements size.
+	newStatements := OrderedCollection new.
 	parseTree statements do: [ :stmt |
 		(stmt isSend and: [stmt selector = #export:]) ifTrue: [
 			methodDirectiveFound := true.
@@ -20724,7 +20724,7 @@ extractSharedCase
 	and remove the directive from the method body."
 
 	| newStatements |
-	newStatements := OrderedCollection new: parseTree statements size.
+	newStatements := OrderedCollection new.
 	parseTree statements do: [ :stmt |
 		(stmt isSend and: [stmt selector = #sharedCodeNamed:inCase:]) ifTrue: [
 			sharedLabel := stmt args first value.
@@ -20835,7 +20835,7 @@ recordDeclarations
 				[returnType := pragma arguments last].
 			pragma keyword = #doNotGenerate: ifTrue:
 				[locals remove: pragma arguments last]]].
-	newStatements := OrderedCollection new: parseTree statements size.
+	newStatements := OrderedCollection new.
 	parseTree statements do: [ :stmt |
 		| isDeclaration |
 		isDeclaration := false.
@@ -21169,7 +21169,7 @@ printTempsAndVar: varName on: aStream
 !TMethod class methodsFor: 'class initialization' stamp: 'ar 11/18/1999 20:06'!
 initialize
 	"TMethod initialize"	
-	CaseStatements := IdentitySet new: 10.
+	CaseStatements := IdentitySet new.
 	CaseStatements addAll: #(dispatchOn:in: dispatchOn:in:with: dispatchOn:in:with:with:).! !
 
 !SmartSyntaxPluginTMethod methodsFor: 'accessing' stamp: 'acg 9/19/1999 11:19'!
@@ -21487,7 +21487,7 @@ extractSuppressFailureGuardDirective
 
 	| result newStatements |
 	result := false.
-	newStatements := OrderedCollection new: parseTree statements size.
+	newStatements := OrderedCollection new.
 	parseTree statements do: [ :stmt |
 		(stmt isSend and: [stmt selector = #suppressFailureGuards:]) ifTrue: [
 			result := stmt args first name = 'true'.
@@ -21575,7 +21575,7 @@ recordDeclarations
 				[returnType := pragma arguments last].
 			pragma keyword = #doNotGenerate: ifTrue:
 				[locals removeKey: pragma arguments last]]].
-	newStatements := OrderedCollection new: parseTree statements size.
+	newStatements := OrderedCollection new.
 	parseTree statements do: 
 		[:stmt | | isDeclaration |
 		 isDeclaration := false.
@@ -21825,7 +21825,7 @@ allCalls
 	"Answer a collection of selectors for the messages sent in this parse tree."
 
 	| calls |
-	calls := Set new: 32.
+	calls := Set new.
 	self nodesDo:
 		[:node|
 		node isSend ifTrue:
@@ -22442,9 +22442,9 @@ setExpression: aNode selectors: selectorList arguments: anArray
 	| selfNode stmt lastSel firstInRun sel |
 	expression := aNode.
 	selfNode := TVariableNode new setName: 'self'.
-	firsts := OrderedCollection new: 400.
-	lasts := OrderedCollection new: 400.
-	cases := OrderedCollection new: 400.
+	firsts := OrderedCollection new.
+	lasts := OrderedCollection new.
+	cases := OrderedCollection new.
 	lastSel := selectorList first.
 	firstInRun := 0.
 	1 to: selectorList size do: [ :i |
@@ -23380,7 +23380,7 @@ mapReceiversIn: aDictionary
 !TStmtListNode methodsFor: 'transformations' stamp: 'ikp 9/26/97 14:50'!
 removeAssertions
 	| newStatements |
-	newStatements := OrderedCollection new: statements size.
+	newStatements := OrderedCollection new.
 	statements do: [ :stmt |
 		stmt isAssertion ifFalse: [
 			newStatements add: (stmt removeAssertions; yourself).
@@ -23654,7 +23654,7 @@ createCasesFromBraceNode: aTBraceNode
 	| casesToStrings stringsToLabels newCases |
 	casesToStrings := Dictionary new.
 	stringsToLabels := Dictionary new.
-	newCases := OrderedCollection new: aTBraceNode caseLabels size.
+	newCases := OrderedCollection new.
 	aTBraceNode caseLabels with: aTBraceNode cases do:
 		[:label :case| | printString |
 		printString := casesToStrings at: case put: case printString.
@@ -34933,7 +34933,7 @@ primitiveTableString
 requiredMethodNames
 	"return the list of method names that should be retained for export or other support reasons"
 	| requiredList |
-	requiredList := Set new:400.
+	requiredList := Set new.
 	"A number of methods required by VM support code, jitter, specific platforms etc"
 	requiredList addAll: #(fullDisplayUpdate interpret printCallStack printAllStacks readImageFromFile:HeapSize:StartingAt: success: readableFormat: getCurrentBytecode characterForAscii: findClassOfMethod:forReceiver: findSelectorOfMethod:forReceiver: loadInitialContext nullCompilerHook setCompilerInitialized: getFullScreenFlag getInterruptCheckCounter getInterruptKeycode getInterruptPending getNextWakeupTick getSavedWindowSize setFullScreenFlag: setInterruptCheckCounter: setInterruptKeycode: setInterruptPending: setNextWakeupTick: setSavedWindowSize: forceInterruptCheck getThisSessionID setMicroSeconds:andOffset:).
 
