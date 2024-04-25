@@ -1,1374 +1,1374 @@
-'From Cuis 6.0 [latest update: #5772] on 30 April 2023 at 12:05:41 pm'!
+'From Cuis6.3 [latest update: #6327] on 25 April 2024 at 11:49:44 am'!
 'Description VMMaker is the main package for Cuis, Squeak and Pharo for VM and VM plugin work. It can run the VM code in smalltalk, running a separate Smalltalk image. It can also translate the VM and plugins to C.
 
 This package is in Cuis .pck.st format and started from VMMaker-dtl.422.mcz from http://source.squeak.org/VMMaker.html and http://source.squeak.org/VMMaker/ as a verbatim copy, except for convertion to LF for line endings and removal of a couple of name clashes (method parameter breakCount with same name as instance variable in StackInterpreterSimulator).
 
 It is currently updated up to VMMaker-dtl.422.mcz (please keep this reference updated)'!
-!provides: 'VMMaker' 1 14!
+!provides: 'VMMaker' 1 15!
 !requires: 'Identities-UUID' 1 8 nil!
 !requires: 'Balloon' 1 4 nil!
 !requires: 'Compatibility-VMMaker' 1 1 nil!
+!requires: 'FFI' 1 33 nil!
 !requires: 'Sound' 1 23 nil!
 !requires: 'Compression' 1 27 nil!
-!requires: 'FFI' 1 33 nil!
-SystemOrganization addCategory: 'VMMaker-Building'!
-SystemOrganization addCategory: 'VMMaker-Interpreter'!
-SystemOrganization addCategory: 'VMMaker-InterpreterSimulation'!
-SystemOrganization addCategory: 'VMMaker-Plugins'!
-SystemOrganization addCategory: 'VMMaker-SmartSyntaxPlugins'!
-SystemOrganization addCategory: 'VMMaker-Translation to C'!
-SystemOrganization addCategory: 'VMMaker-Support'!
-SystemOrganization addCategory: 'VMMaker-JIT'!
-SystemOrganization addCategory: 'VMMaker-JITSimulation'!
+SystemOrganization addCategory: #'VMMaker-Building'!
+SystemOrganization addCategory: #'VMMaker-Interpreter'!
+SystemOrganization addCategory: #'VMMaker-InterpreterSimulation'!
+SystemOrganization addCategory: #'VMMaker-Plugins'!
+SystemOrganization addCategory: #'VMMaker-SmartSyntaxPlugins'!
+SystemOrganization addCategory: #'VMMaker-Translation to C'!
+SystemOrganization addCategory: #'VMMaker-Support'!
+SystemOrganization addCategory: #'VMMaker-JIT'!
+SystemOrganization addCategory: #'VMMaker-JITSimulation'!
 
 
-!classDefinition: #VMBasicConstants category: 'VMMaker-Interpreter'!
+!classDefinition: #VMBasicConstants category: #'VMMaker-Interpreter'!
 SharedPool subclass: #VMBasicConstants
 	instanceVariableNames: ''
 	classVariableNames: 'DoAssertionChecks DoExpensiveAssertionChecks PrimErrBadArgument PrimErrBadIndex PrimErrBadMethod PrimErrBadNumArgs PrimErrBadReceiver PrimErrGenericFailure PrimErrInappropriate PrimErrLimitExceeded PrimErrNamedInternal PrimErrNoCMemory PrimErrNoMemory PrimErrNoModification PrimErrNotFound PrimErrObjectMayMove PrimErrUnsupported PrimNoErr'
 	poolDictionaries: ''
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'VMBasicConstants class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'VMBasicConstants class' category: #'VMMaker-Interpreter'!
 VMBasicConstants class
 	instanceVariableNames: ''!
 
-!classDefinition: #VMSqueakV3BytecodeConstants category: 'VMMaker-Interpreter'!
+!classDefinition: #VMSqueakV3BytecodeConstants category: #'VMMaker-Interpreter'!
 VMBasicConstants subclass: #VMSqueakV3BytecodeConstants
 	instanceVariableNames: ''
 	classVariableNames: 'CtxtTempFrameStart InvokeObjectAsMethodPrimitiveIndex LargeContextBit LargeContextSize SmallContextSize'
 	poolDictionaries: 'VMBasicConstants'
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'VMSqueakV3BytecodeConstants class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'VMSqueakV3BytecodeConstants class' category: #'VMMaker-Interpreter'!
 VMSqueakV3BytecodeConstants class
 	instanceVariableNames: ''!
 
-!classDefinition: #VMSqueakV3ObjectRepresentationConstants category: 'VMMaker-Interpreter'!
+!classDefinition: #VMSqueakV3ObjectRepresentationConstants category: #'VMMaker-Interpreter'!
 VMBasicConstants subclass: #VMSqueakV3ObjectRepresentationConstants
 	instanceVariableNames: ''
 	classVariableNames: 'ClassArrayCompactIndex ClassBlockClosureCompactIndex ClassBlockContextCompactIndex ClassByteStringCompactIndex ClassFloatCompactIndex ClassLargeNegativeIntegerCompactIndex ClassLargePositiveIntegerCompactIndex ClassMethodContextCompactIndex CompactClassMask HashBitsOffset HashMaskUnshifted HeaderTypeShort HeaderTypeSizeAndClass TypeMask'
 	poolDictionaries: ''
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'VMSqueakV3ObjectRepresentationConstants class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'VMSqueakV3ObjectRepresentationConstants class' category: #'VMMaker-Interpreter'!
 VMSqueakV3ObjectRepresentationConstants class
 	instanceVariableNames: ''!
 
-!classDefinition: #VMMethodCacheConstants category: 'VMMaker-Interpreter'!
+!classDefinition: #VMMethodCacheConstants category: #'VMMaker-Interpreter'!
 SharedPool subclass: #VMMethodCacheConstants
 	instanceVariableNames: ''
 	classVariableNames: 'MethodCacheClass MethodCacheEntries MethodCacheEntrySize MethodCacheMask MethodCacheMethod MethodCachePrim MethodCachePrimFunction MethodCacheSelector MethodCacheSize'
 	poolDictionaries: ''
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'VMMethodCacheConstants class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'VMMethodCacheConstants class' category: #'VMMaker-Interpreter'!
 VMMethodCacheConstants class
 	instanceVariableNames: ''!
 
-!classDefinition: #VMObjectIndices category: 'VMMaker-Interpreter'!
+!classDefinition: #VMObjectIndices category: #'VMMaker-Interpreter'!
 SharedPool subclass: #VMObjectIndices
 	instanceVariableNames: ''
 	classVariableNames: 'ActiveProcessIndex CharacterTable CharacterValueIndex ClassAlien ClassArray ClassBitmap ClassBlockClosure ClassBlockContext ClassByteArray ClassByteString ClassCharacter ClassCompiledMethod ClassExternalAddress ClassExternalData ClassExternalFunction ClassExternalLibrary ClassExternalStructure ClassFloat ClassInteger ClassLargeNegativeInteger ClassLargePositiveInteger ClassMessage ClassMethodContext ClassMutex ClassPoint ClassProcess ClassSemaphore ClassString ClassUnsafeAlien ClassWeakFinalizer ClosureCopiedValuesIndex ClosureFirstCopiedValueIndex ClosureIndex ClosureNumArgsIndex ClosureOuterContextIndex ClosureStartPCIndex CompactClasses ConstMinusOne ConstOne ConstTwo ConstZero ExcessSignalsIndex ExternalObjectsArray FalseObject FirstLinkIndex ForeignCallbackProcess HeaderIndex InstanceSpecificationIndex InstructionPointerIndex LastLinkIndex LiteralStart MessageArgumentsIndex MessageLookupClassIndex MessageSelectorIndex MethodArrayIndex MethodDictionaryIndex MethodIndex MyListIndex NextLinkIndex NilObject PrimErrTableIndex PriorityIndex ProcessInExternalCodeTag ProcessListsIndex ProcessSignalingLowSpace ReceiverIndex SchedulerAssociation SelectorAboutToReturn SelectorAttemptToAssign SelectorCannotInterpret SelectorCannotReturn SelectorCounterTripped SelectorDoesNotUnderstand SelectorInvokeCallback SelectorMustBeBoolean SelectorRunWithIn SelectorStart SenderIndex SpecialSelectors StackPointerIndex StreamArrayIndex StreamIndexIndex StreamReadLimitIndex StreamWriteLimitIndex SuperclassIndex SuspendedContextIndex TheDisplay TheFinalizationSemaphore TheInputSemaphore TheInterruptSemaphore TheLowSpaceSemaphore TheTimerSemaphore TrueObject ValueIndex XIndex YIndex'
 	poolDictionaries: ''
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'VMObjectIndices class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'VMObjectIndices class' category: #'VMMaker-Interpreter'!
 VMObjectIndices class
 	instanceVariableNames: ''!
 
-!classDefinition: #VMStackFrameOffsets category: 'VMMaker-Interpreter'!
+!classDefinition: #VMStackFrameOffsets category: #'VMMaker-Interpreter'!
 SharedPool subclass: #VMStackFrameOffsets
 	instanceVariableNames: ''
 	classVariableNames: 'FoxCallerContext FoxCallerSavedIP FoxFrameFlags FoxIFReceiver FoxIFSavedIP FoxIFrameFlags FoxMFReceiver FoxMethod FoxReceiver FoxSavedFP FoxThisContext FrameSlots IFrameSlots MFMethodFlagHasContextFlag MFMethodFlagIsBlockFlag MFMethodFlagsMask MFMethodMask MFrameSlots'
 	poolDictionaries: ''
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'VMStackFrameOffsets class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'VMStackFrameOffsets class' category: #'VMMaker-Interpreter'!
 VMStackFrameOffsets class
 	instanceVariableNames: ''!
 
-!classDefinition: #Oop category: 'VMMaker-SmartSyntaxPlugins'!
+!classDefinition: #Oop category: #'VMMaker-SmartSyntaxPlugins'!
 Behavior subclass: #Oop
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-SmartSyntaxPlugins'!
-!classDefinition: 'Oop class' category: 'VMMaker-SmartSyntaxPlugins'!
+!classDefinition: 'Oop class' category: #'VMMaker-SmartSyntaxPlugins'!
 Oop class
 	instanceVariableNames: ''!
 
-!classDefinition: #Unsigned category: 'VMMaker-SmartSyntaxPlugins'!
+!classDefinition: #Unsigned category: #'VMMaker-SmartSyntaxPlugins'!
 Behavior subclass: #Unsigned
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-SmartSyntaxPlugins'!
-!classDefinition: 'Unsigned class' category: 'VMMaker-SmartSyntaxPlugins'!
+!classDefinition: 'Unsigned class' category: #'VMMaker-SmartSyntaxPlugins'!
 Unsigned class
 	instanceVariableNames: ''!
 
-!classDefinition: #FakeStdinStream category: 'VMMaker-JITSimulation'!
+!classDefinition: #FakeStdinStream category: #'VMMaker-JITSimulation'!
 ReadStream subclass: #FakeStdinStream
 	instanceVariableNames: 'atEnd simulator'
 	classVariableNames: ''
 	poolDictionaries: 'VMBasicConstants'
 	category: 'VMMaker-JITSimulation'!
-!classDefinition: 'FakeStdinStream class' category: 'VMMaker-JITSimulation'!
+!classDefinition: 'FakeStdinStream class' category: #'VMMaker-JITSimulation'!
 FakeStdinStream class
 	instanceVariableNames: ''!
 
-!classDefinition: #CrForSpaceWriteStream category: 'VMMaker-Building'!
+!classDefinition: #CrForSpaceWriteStream category: #'VMMaker-Building'!
 WriteStream subclass: #CrForSpaceWriteStream
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Building'!
-!classDefinition: 'CrForSpaceWriteStream class' category: 'VMMaker-Building'!
+!classDefinition: 'CrForSpaceWriteStream class' category: #'VMMaker-Building'!
 CrForSpaceWriteStream class
 	instanceVariableNames: ''!
 
-!classDefinition: #VMMakerException category: 'VMMaker-Building'!
+!classDefinition: #VMMakerException category: #'VMMaker-Building'!
 Error subclass: #VMMakerException
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Building'!
-!classDefinition: 'VMMakerException class' category: 'VMMaker-Building'!
+!classDefinition: 'VMMakerException class' category: #'VMMaker-Building'!
 VMMakerException class
 	instanceVariableNames: ''!
 
-!classDefinition: #VMMaker category: 'VMMaker-Building'!
+!classDefinition: #VMMaker category: #'VMMaker-Building'!
 Object subclass: #VMMaker
 	instanceVariableNames: 'inline forBrowser allPlugins internalPlugins externalPlugins platformName sourceDirName platformRootDirName logger allFilesList interpreterClassName cogitClassName'
 	classVariableNames: 'CodeGeneratorCache DirNames UseSinglePluginsDirectory'
 	poolDictionaries: ''
 	category: 'VMMaker-Building'!
-!classDefinition: 'VMMaker class' category: 'VMMaker-Building'!
+!classDefinition: 'VMMaker class' category: #'VMMaker-Building'!
 VMMaker class
 	instanceVariableNames: ''!
 
-!classDefinition: #CrossPlatformVMMaker category: 'VMMaker-Building'!
+!classDefinition: #CrossPlatformVMMaker category: #'VMMaker-Building'!
 VMMaker subclass: #CrossPlatformVMMaker
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Building'!
-!classDefinition: 'CrossPlatformVMMaker class' category: 'VMMaker-Building'!
+!classDefinition: 'CrossPlatformVMMaker class' category: #'VMMaker-Building'!
 CrossPlatformVMMaker class
 	instanceVariableNames: ''!
 
-!classDefinition: #MacOSPowerPCOS9VMMaker category: 'VMMaker-Building'!
+!classDefinition: #MacOSPowerPCOS9VMMaker category: #'VMMaker-Building'!
 VMMaker subclass: #MacOSPowerPCOS9VMMaker
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Building'!
-!classDefinition: 'MacOSPowerPCOS9VMMaker class' category: 'VMMaker-Building'!
+!classDefinition: 'MacOSPowerPCOS9VMMaker class' category: #'VMMaker-Building'!
 MacOSPowerPCOS9VMMaker class
 	instanceVariableNames: ''!
 
-!classDefinition: #MacOSPowerPCOS9BrowserVMMaker category: 'VMMaker-Building'!
+!classDefinition: #MacOSPowerPCOS9BrowserVMMaker category: #'VMMaker-Building'!
 MacOSPowerPCOS9VMMaker subclass: #MacOSPowerPCOS9BrowserVMMaker
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Building'!
-!classDefinition: 'MacOSPowerPCOS9BrowserVMMaker class' category: 'VMMaker-Building'!
+!classDefinition: 'MacOSPowerPCOS9BrowserVMMaker class' category: #'VMMaker-Building'!
 MacOSPowerPCOS9BrowserVMMaker class
 	instanceVariableNames: ''!
 
-!classDefinition: #RiscOSVMMaker category: 'VMMaker-Building'!
+!classDefinition: #RiscOSVMMaker category: #'VMMaker-Building'!
 VMMaker subclass: #RiscOSVMMaker
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Building'!
-!classDefinition: 'RiscOSVMMaker class' category: 'VMMaker-Building'!
+!classDefinition: 'RiscOSVMMaker class' category: #'VMMaker-Building'!
 RiscOSVMMaker class
 	instanceVariableNames: ''!
 
-!classDefinition: #UnixVMMaker category: 'VMMaker-Building'!
+!classDefinition: #UnixVMMaker category: #'VMMaker-Building'!
 VMMaker subclass: #UnixVMMaker
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Building'!
-!classDefinition: 'UnixVMMaker class' category: 'VMMaker-Building'!
+!classDefinition: 'UnixVMMaker class' category: #'VMMaker-Building'!
 UnixVMMaker class
 	instanceVariableNames: ''!
 
-!classDefinition: #Win32VMMaker category: 'VMMaker-Building'!
+!classDefinition: #Win32VMMaker category: #'VMMaker-Building'!
 VMMaker subclass: #Win32VMMaker
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Building'!
-!classDefinition: 'Win32VMMaker class' category: 'VMMaker-Building'!
+!classDefinition: 'Win32VMMaker class' category: #'VMMaker-Building'!
 Win32VMMaker class
 	instanceVariableNames: ''!
 
-!classDefinition: #PrimitiveTableHistory category: 'VMMaker-Interpreter'!
+!classDefinition: #PrimitiveTableHistory category: #'VMMaker-Interpreter'!
 Object subclass: #PrimitiveTableHistory
 	instanceVariableNames: ''
 	classVariableNames: 'MaxPrimitiveIndex PrimitiveTable'
 	poolDictionaries: ''
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'PrimitiveTableHistory class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'PrimitiveTableHistory class' category: #'VMMaker-Interpreter'!
 PrimitiveTableHistory class
 	instanceVariableNames: ''!
 
-!classDefinition: #CArray category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #CArray category: #'VMMaker-InterpreterSimulation'!
 Object subclass: #CArray
 	instanceVariableNames: 'interpreter arrayBaseAddress ptrOffset unitSize'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'CArray class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'CArray class' category: #'VMMaker-InterpreterSimulation'!
 CArray class
 	instanceVariableNames: ''!
 
-!classDefinition: #BalloonArray category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #BalloonArray category: #'VMMaker-InterpreterSimulation'!
 CArray subclass: #BalloonArray
 	instanceVariableNames: 'simArray'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'BalloonArray class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'BalloonArray class' category: #'VMMaker-InterpreterSimulation'!
 BalloonArray class
 	instanceVariableNames: ''!
 
-!classDefinition: #CObjectAccessor category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #CObjectAccessor category: #'VMMaker-InterpreterSimulation'!
 Object subclass: #CObjectAccessor
 	instanceVariableNames: 'object offset'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'CObjectAccessor class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'CObjectAccessor class' category: #'VMMaker-InterpreterSimulation'!
 CObjectAccessor class
 	instanceVariableNames: ''!
 
-!classDefinition: #CArrayAccessor category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #CArrayAccessor category: #'VMMaker-InterpreterSimulation'!
 CObjectAccessor subclass: #CArrayAccessor
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'CArrayAccessor class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'CArrayAccessor class' category: #'VMMaker-InterpreterSimulation'!
 CArrayAccessor class
 	instanceVariableNames: ''!
 
-!classDefinition: #CPluggableAccessor category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #CPluggableAccessor category: #'VMMaker-InterpreterSimulation'!
 CArrayAccessor subclass: #CPluggableAccessor
 	instanceVariableNames: 'readBlock writeBlock'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'CPluggableAccessor class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'CPluggableAccessor class' category: #'VMMaker-InterpreterSimulation'!
 CPluggableAccessor class
 	instanceVariableNames: ''!
 
-!classDefinition: #InterpreterProxy category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #InterpreterProxy category: #'VMMaker-InterpreterSimulation'!
 Object subclass: #InterpreterProxy
 	instanceVariableNames: 'primFailCode remapBuffer stack method argumentCount bb thisSessionID'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'InterpreterProxy class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'InterpreterProxy class' category: #'VMMaker-InterpreterSimulation'!
 InterpreterProxy class
 	instanceVariableNames: ''!
 
-!classDefinition: #ReadOnlyArrayWrapper category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #ReadOnlyArrayWrapper category: #'VMMaker-InterpreterSimulation'!
 Object subclass: #ReadOnlyArrayWrapper
 	instanceVariableNames: 'theArray'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'ReadOnlyArrayWrapper class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'ReadOnlyArrayWrapper class' category: #'VMMaker-InterpreterSimulation'!
 ReadOnlyArrayWrapper class
 	instanceVariableNames: ''!
 
-!classDefinition: #CCodeGenerator category: 'VMMaker-Translation to C'!
+!classDefinition: #CCodeGenerator category: #'VMMaker-Translation to C'!
 Object subclass: #CCodeGenerator
 	instanceVariableNames: 'structClasses translationDict inlineList constants variables variableDeclarations scopeStack methods macros apiMethods preparedMethodList variablesSetCache headerFiles globalVariableUsage useSymbolicConstants generateDeadCode doNotRemoveMethodList asArgumentTranslationDict receiverDict vmClass currentMethod logger declareMethodsStatic permitMethodPruning pools abstractDeclarations uncheckedAbstractMethods selectorTranslations breakSrcInlineSelector breakDestInlineSelector inlineReturnTypes'
 	classVariableNames: 'UseRightShiftForDivide'
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'CCodeGenerator class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'CCodeGenerator class' category: #'VMMaker-Translation to C'!
 CCodeGenerator class
 	instanceVariableNames: ''!
 
-!classDefinition: #CCodeGeneratorGlobalStructure category: 'VMMaker-Translation to C'!
+!classDefinition: #CCodeGeneratorGlobalStructure category: #'VMMaker-Translation to C'!
 CCodeGenerator subclass: #CCodeGeneratorGlobalStructure
 	instanceVariableNames: 'localStructDef structDefDefine'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'CCodeGeneratorGlobalStructure class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'CCodeGeneratorGlobalStructure class' category: #'VMMaker-Translation to C'!
 CCodeGeneratorGlobalStructure class
 	instanceVariableNames: ''!
 
-!classDefinition: #VMPluginCodeGenerator category: 'VMMaker-Translation to C'!
+!classDefinition: #VMPluginCodeGenerator category: #'VMMaker-Translation to C'!
 CCodeGenerator subclass: #VMPluginCodeGenerator
 	instanceVariableNames: 'pluginClass pluginName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'VMPluginCodeGenerator class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'VMPluginCodeGenerator class' category: #'VMMaker-Translation to C'!
 VMPluginCodeGenerator class
 	instanceVariableNames: ''!
 
-!classDefinition: #SmartSyntaxPluginCodeGenerator category: 'VMMaker-SmartSyntaxPlugins'!
+!classDefinition: #SmartSyntaxPluginCodeGenerator category: #'VMMaker-SmartSyntaxPlugins'!
 VMPluginCodeGenerator subclass: #SmartSyntaxPluginCodeGenerator
 	instanceVariableNames: 'debugFlag'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-SmartSyntaxPlugins'!
-!classDefinition: 'SmartSyntaxPluginCodeGenerator class' category: 'VMMaker-SmartSyntaxPlugins'!
+!classDefinition: 'SmartSyntaxPluginCodeGenerator class' category: #'VMMaker-SmartSyntaxPlugins'!
 SmartSyntaxPluginCodeGenerator class
 	instanceVariableNames: ''!
 
-!classDefinition: #Pragmatizer category: 'VMMaker-Translation to C'!
+!classDefinition: #Pragmatizer category: #'VMMaker-Translation to C'!
 Object subclass: #Pragmatizer
 	instanceVariableNames: 'package selectors classes stampCutString stampInsertString'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'Pragmatizer class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'Pragmatizer class' category: #'VMMaker-Translation to C'!
 Pragmatizer class
 	instanceVariableNames: ''!
 
-!classDefinition: #TMethod category: 'VMMaker-Translation to C'!
+!classDefinition: #TMethod category: #'VMMaker-Translation to C'!
 Object subclass: #TMethod
 	instanceVariableNames: 'selector returnType args locals declarations primitive parseTree labels writtenToGlobalVarsCache complete export static sharedLabel sharedCase comment definingClass globalStructureBuildMethodHasFoo canAsmLabel mustAsmLabel properties cascadeVariableNumber extraVariableNumber'
 	classVariableNames: 'CaseStatements'
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TMethod class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TMethod class' category: #'VMMaker-Translation to C'!
 TMethod class
 	instanceVariableNames: ''!
 
-!classDefinition: #SmartSyntaxPluginTMethod category: 'VMMaker-SmartSyntaxPlugins'!
+!classDefinition: #SmartSyntaxPluginTMethod category: #'VMMaker-SmartSyntaxPlugins'!
 TMethod subclass: #SmartSyntaxPluginTMethod
 	instanceVariableNames: 'isPrimitive suppressingFailureGuards selectorOverride fullArgs parmSpecs rcvrSpec'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-SmartSyntaxPlugins'!
-!classDefinition: 'SmartSyntaxPluginTMethod class' category: 'VMMaker-SmartSyntaxPlugins'!
+!classDefinition: 'SmartSyntaxPluginTMethod class' category: #'VMMaker-SmartSyntaxPlugins'!
 SmartSyntaxPluginTMethod class
 	instanceVariableNames: ''!
 
-!classDefinition: #TParseNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TParseNode category: #'VMMaker-Translation to C'!
 Object subclass: #TParseNode
 	instanceVariableNames: 'comment'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TParseNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TParseNode class' category: #'VMMaker-Translation to C'!
 TParseNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TAssignmentNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TAssignmentNode category: #'VMMaker-Translation to C'!
 TParseNode subclass: #TAssignmentNode
 	instanceVariableNames: 'variable expression'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TAssignmentNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TAssignmentNode class' category: #'VMMaker-Translation to C'!
 TAssignmentNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TBraceCaseNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TBraceCaseNode category: #'VMMaker-Translation to C'!
 TParseNode subclass: #TBraceCaseNode
 	instanceVariableNames: 'caseLabels cases'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TBraceCaseNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TBraceCaseNode class' category: #'VMMaker-Translation to C'!
 TBraceCaseNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TCaseStmtNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TCaseStmtNode category: #'VMMaker-Translation to C'!
 TParseNode subclass: #TCaseStmtNode
 	instanceVariableNames: 'expression firsts lasts cases'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TCaseStmtNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TCaseStmtNode class' category: #'VMMaker-Translation to C'!
 TCaseStmtNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TConstantNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TConstantNode category: #'VMMaker-Translation to C'!
 TParseNode subclass: #TConstantNode
 	instanceVariableNames: 'value'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TConstantNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TConstantNode class' category: #'VMMaker-Translation to C'!
 TConstantNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TDefineNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TDefineNode category: #'VMMaker-Translation to C'!
 TConstantNode subclass: #TDefineNode
 	instanceVariableNames: 'name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TDefineNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TDefineNode class' category: #'VMMaker-Translation to C'!
 TDefineNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TGoToNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TGoToNode category: #'VMMaker-Translation to C'!
 TParseNode subclass: #TGoToNode
 	instanceVariableNames: 'label'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TGoToNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TGoToNode class' category: #'VMMaker-Translation to C'!
 TGoToNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TInlineNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TInlineNode category: #'VMMaker-Translation to C'!
 TParseNode subclass: #TInlineNode
 	instanceVariableNames: 'method'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TInlineNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TInlineNode class' category: #'VMMaker-Translation to C'!
 TInlineNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TLabeledCommentNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TLabeledCommentNode category: #'VMMaker-Translation to C'!
 TParseNode subclass: #TLabeledCommentNode
 	instanceVariableNames: 'label'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TLabeledCommentNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TLabeledCommentNode class' category: #'VMMaker-Translation to C'!
 TLabeledCommentNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TNotImplementedNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TNotImplementedNode category: #'VMMaker-Translation to C'!
 TParseNode subclass: #TNotImplementedNode
 	instanceVariableNames: 'parseNode'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TNotImplementedNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TNotImplementedNode class' category: #'VMMaker-Translation to C'!
 TNotImplementedNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TReturnNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TReturnNode category: #'VMMaker-Translation to C'!
 TParseNode subclass: #TReturnNode
 	instanceVariableNames: 'expression'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TReturnNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TReturnNode class' category: #'VMMaker-Translation to C'!
 TReturnNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TSendNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TSendNode category: #'VMMaker-Translation to C'!
 TParseNode subclass: #TSendNode
 	instanceVariableNames: 'selector receiver arguments isBuiltinOperator isExpression'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TSendNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TSendNode class' category: #'VMMaker-Translation to C'!
 TSendNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TStmtListNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TStmtListNode category: #'VMMaker-Translation to C'!
 TParseNode subclass: #TStmtListNode
 	instanceVariableNames: 'arguments statements'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TStmtListNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TStmtListNode class' category: #'VMMaker-Translation to C'!
 TStmtListNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TSwitchStmtNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TSwitchStmtNode category: #'VMMaker-Translation to C'!
 TParseNode subclass: #TSwitchStmtNode
 	instanceVariableNames: 'expression cases otherwiseOrNil switchVariable'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TSwitchStmtNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TSwitchStmtNode class' category: #'VMMaker-Translation to C'!
 TSwitchStmtNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #TVariableNode category: 'VMMaker-Translation to C'!
+!classDefinition: #TVariableNode category: #'VMMaker-Translation to C'!
 TParseNode subclass: #TVariableNode
 	instanceVariableNames: 'name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Translation to C'!
-!classDefinition: 'TVariableNode class' category: 'VMMaker-Translation to C'!
+!classDefinition: 'TVariableNode class' category: #'VMMaker-Translation to C'!
 TVariableNode class
 	instanceVariableNames: ''!
 
-!classDefinition: #VMClass category: 'VMMaker-Support'!
+!classDefinition: #VMClass category: #'VMMaker-Support'!
 Object subclass: #VMClass
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: 'VMBasicConstants'
 	category: 'VMMaker-Support'!
-!classDefinition: 'VMClass class' category: 'VMMaker-Support'!
+!classDefinition: 'VMClass class' category: #'VMMaker-Support'!
 VMClass class
 	instanceVariableNames: 'timeStamp'!
 
-!classDefinition: #InterpreterPrimitives category: 'VMMaker-Interpreter'!
+!classDefinition: #InterpreterPrimitives category: #'VMMaker-Interpreter'!
 VMClass subclass: #InterpreterPrimitives
 	instanceVariableNames: 'objectMemory primitiveTable primFailCode argumentCount interruptKeycode newMethod preemptionYields fullScreenFlag'
 	classVariableNames: 'CrossedX EndOfRun InterpreterSourceVersion MillisecondClockMask PrimitiveExternalCallIndex PrimitiveTable'
 	poolDictionaries: 'VMObjectIndices VMSqueakV3ObjectRepresentationConstants'
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'InterpreterPrimitives class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'InterpreterPrimitives class' category: #'VMMaker-Interpreter'!
 InterpreterPrimitives class
 	instanceVariableNames: ''!
 
-!classDefinition: #Interpreter category: 'VMMaker-Interpreter'!
+!classDefinition: #Interpreter category: #'VMMaker-Interpreter'!
 InterpreterPrimitives subclass: #Interpreter
 	instanceVariableNames: 'currentBytecode semaphoresUseBufferA semaphoresToSignalA semaphoresToSignalCountA semaphoresToSignalB semaphoresToSignalCountB extraVMMemory globalSessionID method instructionPointer stackPointer localIP localSP localReturnValue messageSelector currentByteCode primitiveFunctionPointer methodCache atCache lkupClass interruptPending savedWindowSize deferDisplayUpdates pendingFinalizationSignals interpreterProxy showSurfaceFn externalPrimitiveTable jmpBuf jmpDepth suspendedCallbacks suspendedMethods'
 	classVariableNames: 'AtCacheEntries AtCacheFixedFields AtCacheFmt AtCacheMask AtCacheOop AtCacheSize AtCacheTotalSize AtPutBase MaxExternalPrimitiveTableSize MaxJumpBuf MaxPrimitiveIndex SemaphoresToSignalSize'
 	poolDictionaries: 'VMMethodCacheConstants'
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'Interpreter class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'Interpreter class' category: #'VMMaker-Interpreter'!
 Interpreter class
 	instanceVariableNames: ''!
 
-!classDefinition: #ContextInterpreter category: 'VMMaker-Interpreter'!
+!classDefinition: #ContextInterpreter category: #'VMMaker-Interpreter'!
 Interpreter subclass: #ContextInterpreter
 	instanceVariableNames: 'activeContext theHomeContext receiver localHomeContext localReturnContext primitiveIndex reclaimableContextCount nextPollTick nextWakeupTick lastTick compilerInitialized compilerHooks newNativeMethod methodClass receiverClass interpreterVersion imageFormatVersionNumber interruptCheckCounter interruptCheckCounterFeedBackReset interruptChecksEveryNms primitiveTableDefaults jmpMax imageFormatInitialVersion allowAccessBeyondSP'
 	classVariableNames: 'BlockArgumentCountIndex BytecodeTable CacheProbeMax CallerIndex CompilerHooksSize DirBadPath DirEntryFound DirNoMoreEntries DoBalanceChecks HomeIndex InitialIPIndex MessageDictionaryIndex MethodCacheNative TempFrameStart'
 	poolDictionaries: 'VMMethodCacheConstants VMSqueakV3BytecodeConstants'
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'ContextInterpreter class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'ContextInterpreter class' category: #'VMMaker-Interpreter'!
 ContextInterpreter class
 	instanceVariableNames: ''!
 
-!classDefinition: #InterpreterSimulator category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #InterpreterSimulator category: #'VMMaker-InterpreterSimulation'!
 ContextInterpreter subclass: #InterpreterSimulator
 	instanceVariableNames: 'bytesPerWord byteCount sendCount traceOn myBitBlt displayForm filesOpen imageName pluginList mappedPluginEntries inputSem quitBlock transcript displayView logging'
 	classVariableNames: ''
 	poolDictionaries: 'VMObjectIndices VMSqueakV3ObjectRepresentationConstants'
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'InterpreterSimulator class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'InterpreterSimulator class' category: #'VMMaker-InterpreterSimulation'!
 InterpreterSimulator class
 	instanceVariableNames: ''!
 
-!classDefinition: #InterpreterSimulatorLSB category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #InterpreterSimulatorLSB category: #'VMMaker-InterpreterSimulation'!
 InterpreterSimulator subclass: #InterpreterSimulatorLSB
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'InterpreterSimulatorLSB class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'InterpreterSimulatorLSB class' category: #'VMMaker-InterpreterSimulation'!
 InterpreterSimulatorLSB class
 	instanceVariableNames: ''!
 
-!classDefinition: #InterpreterSimulatorLSB64 category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #InterpreterSimulatorLSB64 category: #'VMMaker-InterpreterSimulation'!
 InterpreterSimulatorLSB subclass: #InterpreterSimulatorLSB64
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'InterpreterSimulatorLSB64 class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'InterpreterSimulatorLSB64 class' category: #'VMMaker-InterpreterSimulation'!
 InterpreterSimulatorLSB64 class
 	instanceVariableNames: ''!
 
-!classDefinition: #InterpreterSimulatorMSB category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #InterpreterSimulatorMSB category: #'VMMaker-InterpreterSimulation'!
 InterpreterSimulator subclass: #InterpreterSimulatorMSB
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'InterpreterSimulatorMSB class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'InterpreterSimulatorMSB class' category: #'VMMaker-InterpreterSimulation'!
 InterpreterSimulatorMSB class
 	instanceVariableNames: ''!
 
-!classDefinition: #InterpreterSimulatorMSB64 category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #InterpreterSimulatorMSB64 category: #'VMMaker-InterpreterSimulation'!
 InterpreterSimulatorMSB subclass: #InterpreterSimulatorMSB64
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'InterpreterSimulatorMSB64 class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'InterpreterSimulatorMSB64 class' category: #'VMMaker-InterpreterSimulation'!
 InterpreterSimulatorMSB64 class
 	instanceVariableNames: ''!
 
-!classDefinition: #StackInterpreter category: 'VMMaker-Interpreter'!
+!classDefinition: #StackInterpreter category: #'VMMaker-Interpreter'!
 Interpreter subclass: #StackInterpreter
 	instanceVariableNames: 'localFP stackLimit stackPage stackPages framePointer highestRunnableProcessPriority nextWakeupUsecs nextPollUsecs inIOProcessEvents imageHeaderFlags externalPrimitiveTableFirstFreeIndex overflowedPage extraFramesToMoveOnOverflow numStackPages desiredNumStackPages desiredEdenBytes classNameIndex thisClassIndex metaclassSizeBytes interruptCheckChain suppressHeartbeatFlag breakSelector breakSelectorLength longRunningPrimitiveCheckMethod longRunningPrimitiveCheckSemaphore longRunningPrimitiveStartUsecs longRunningPrimitiveStopUsecs longRunningPrimitiveGCUsecs longRunningPrimitiveCheckSequenceNumber longRunningPrimitiveSignalUndelivered tempOop statForceInterruptCheck statStackOverflow statStackPageDivorce statCheckForEvents statProcessSwitch statIOProcessEvents theUnknownShort imageFloatsBigEndian maxExtSemTabSizeSet lastMethodCacheProbeWrite statPendingFinalizationSignals classByteArrayCompactIndex profileProcess nextProfileTick profileMethod profileSemaphore'
 	classVariableNames: 'BytecodeTable BytesPerWord COGMTVM COGVM CacheProbeMax DirBadPath DirEntryFound DirNoMoreEntries DumpStackOnLowSpace EnclosingMixinIndex EnclosingObjectIndex FailImbalancedPrimitives HeaderFlagBitPosition IMMUTABILITY MULTIPLEBYTECODESETS MaxQuickPrimitiveIndex MixinIndex NewspeakVM STACKVM VMBIGENDIAN'
 	poolDictionaries: 'VMBasicConstants VMMethodCacheConstants VMObjectIndices VMSqueakV3BytecodeConstants VMSqueakV3ObjectRepresentationConstants VMStackFrameOffsets'
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'StackInterpreter class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'StackInterpreter class' category: #'VMMaker-Interpreter'!
 StackInterpreter class
 	instanceVariableNames: ''!
 
-!classDefinition: #StackInterpreterPrimitives category: 'VMMaker-Interpreter'!
+!classDefinition: #StackInterpreterPrimitives category: #'VMMaker-Interpreter'!
 StackInterpreter subclass: #StackInterpreterPrimitives
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'StackInterpreterPrimitives class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'StackInterpreterPrimitives class' category: #'VMMaker-Interpreter'!
 StackInterpreterPrimitives class
 	instanceVariableNames: ''!
 
-!classDefinition: #StackInterpreterSimulator category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #StackInterpreterSimulator category: #'VMMaker-InterpreterSimulation'!
 StackInterpreterPrimitives subclass: #StackInterpreterSimulator
 	instanceVariableNames: 'byteCount breakCount sendCount printSends printReturns traceOn myBitBlt displayForm filesOpen imageName pluginList mappedPluginEntries quitBlock transcript displayView printFrameAtEachStep printBytecodeAtEachStep startMicroseconds externalSemaphoreSignalRequests externalSemaphoreSignalResponses extSemTabSize atEachStepBlock disableBooleanCheat'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'StackInterpreterSimulator class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'StackInterpreterSimulator class' category: #'VMMaker-InterpreterSimulation'!
 StackInterpreterSimulator class
 	instanceVariableNames: ''!
 
-!classDefinition: #StackInterpreterSimulatorLSB category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #StackInterpreterSimulatorLSB category: #'VMMaker-InterpreterSimulation'!
 StackInterpreterSimulator subclass: #StackInterpreterSimulatorLSB
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'StackInterpreterSimulatorLSB class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'StackInterpreterSimulatorLSB class' category: #'VMMaker-InterpreterSimulation'!
 StackInterpreterSimulatorLSB class
 	instanceVariableNames: ''!
 
-!classDefinition: #InterpreterStackPages category: 'VMMaker-Interpreter'!
+!classDefinition: #InterpreterStackPages category: #'VMMaker-Interpreter'!
 VMClass subclass: #InterpreterStackPages
 	instanceVariableNames: 'interpreter stackMemory indexOffset pages mostRecentlyUsedPage overflowLimit numPages pageSizeInSlots bytesPerPage'
 	classVariableNames: ''
 	poolDictionaries: 'VMBasicConstants'
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'InterpreterStackPages class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'InterpreterStackPages class' category: #'VMMaker-Interpreter'!
 InterpreterStackPages class
 	instanceVariableNames: ''!
 
-!classDefinition: #InterpreterStackPagesLSB category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #InterpreterStackPagesLSB category: #'VMMaker-InterpreterSimulation'!
 InterpreterStackPages subclass: #InterpreterStackPagesLSB
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'InterpreterStackPagesLSB class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'InterpreterStackPagesLSB class' category: #'VMMaker-InterpreterSimulation'!
 InterpreterStackPagesLSB class
 	instanceVariableNames: ''!
 
-!classDefinition: #InterpreterStackPagesMSB category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #InterpreterStackPagesMSB category: #'VMMaker-InterpreterSimulation'!
 InterpreterStackPages subclass: #InterpreterStackPagesMSB
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'InterpreterStackPagesMSB class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'InterpreterStackPagesMSB class' category: #'VMMaker-InterpreterSimulation'!
 InterpreterStackPagesMSB class
 	instanceVariableNames: ''!
 
-!classDefinition: #ObjectMemory category: 'VMMaker-Interpreter'!
+!classDefinition: #ObjectMemory category: #'VMMaker-Interpreter'!
 VMClass subclass: #ObjectMemory
 	instanceVariableNames: 'interpreter memory youngStart endOfMemory memoryLimit nilObj falseObj trueObj specialObjectsOop rootTable rootTableCount extraRoots extraRootCount weakRoots weakRootCount child field parentField freeBlock lastHash allocationCount lowSpaceThreshold signalLowSpace compStart compEnd fwdTableNext fwdTableLast remapBuffer remapBufferCount allocationsBetweenGCs tenuringThreshold gcSemaphoreIndex gcBiasToGrow gcBiasToGrowGCLimit gcBiasToGrowThreshold statFullGCs statFullGCMSecs statFullGCUsecs statIncrGCs statIncrGCMSecs statIncrGCUsecs statIGCDeltaUsecs statTenures statRootTableOverflows freeContexts freeLargeContexts totalObjectCount shrinkThreshold growHeadroom headerTypeBytes youngStartLocal statMarkCount statSweepCount statMkFwdCount statCompMoveCount statGrowMemory statShrinkMemory statRootTableCount statAllocationCount statSurvivorCount statGCTime statSpecialMarkCount statIGCDeltaTime statpendingFinalizationSignals forceTenureFlag gcStartUsecs rootTableOverflowed'
 	classVariableNames: 'Byte0Mask Byte0Shift Byte1Mask Byte1Shift Byte1ShiftNegated Byte2Mask Byte2Shift Byte3Mask Byte3Shift Byte3ShiftNegated Byte4Mask Byte4Shift Byte4ShiftNegated Byte5Mask Byte5Shift Byte5ShiftNegated Byte6Mask Byte6Shift Byte7Mask Byte7Shift Byte7ShiftNegated Bytes3to0Mask Bytes7to4Mask ClassPseudoContext ClassTranslatedMethod ContextFixedSizePlusHeader Done ExtraRootSize GCTopMarker HashBits HeaderTypeClass HeaderTypeFree HeaderTypeGC InvokeCallbackSelector NilContext RemapBufferSize RootTableRedZone RootTableSize StartField StartObj Upward'
 	poolDictionaries: 'VMBasicConstants VMObjectIndices VMSqueakV3BytecodeConstants VMSqueakV3ObjectRepresentationConstants'
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'ObjectMemory class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'ObjectMemory class' category: #'VMMaker-Interpreter'!
 ObjectMemory class
 	instanceVariableNames: ''!
 
-!classDefinition: #ClassicObjectMemory category: 'VMMaker-Interpreter'!
+!classDefinition: #ClassicObjectMemory category: #'VMMaker-Interpreter'!
 ObjectMemory subclass: #ClassicObjectMemory
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'ClassicObjectMemory class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'ClassicObjectMemory class' category: #'VMMaker-Interpreter'!
 ClassicObjectMemory class
 	instanceVariableNames: ''!
 
-!classDefinition: #ObjectMemorySimulator category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #ObjectMemorySimulator category: #'VMMaker-InterpreterSimulation'!
 ClassicObjectMemory subclass: #ObjectMemorySimulator
 	instanceVariableNames: 'bytesPerWord transcript'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'ObjectMemorySimulator class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'ObjectMemorySimulator class' category: #'VMMaker-InterpreterSimulation'!
 ObjectMemorySimulator class
 	instanceVariableNames: ''!
 
-!classDefinition: #ObjectMemorySimulatorLSB category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #ObjectMemorySimulatorLSB category: #'VMMaker-InterpreterSimulation'!
 ObjectMemorySimulator subclass: #ObjectMemorySimulatorLSB
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'ObjectMemorySimulatorLSB class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'ObjectMemorySimulatorLSB class' category: #'VMMaker-InterpreterSimulation'!
 ObjectMemorySimulatorLSB class
 	instanceVariableNames: ''!
 
-!classDefinition: #ObjectMemorySimulatorLSB64 category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #ObjectMemorySimulatorLSB64 category: #'VMMaker-InterpreterSimulation'!
 ObjectMemorySimulatorLSB subclass: #ObjectMemorySimulatorLSB64
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'ObjectMemorySimulatorLSB64 class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'ObjectMemorySimulatorLSB64 class' category: #'VMMaker-InterpreterSimulation'!
 ObjectMemorySimulatorLSB64 class
 	instanceVariableNames: ''!
 
-!classDefinition: #ObjectMemorySimulatorMSB category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #ObjectMemorySimulatorMSB category: #'VMMaker-InterpreterSimulation'!
 ObjectMemorySimulator subclass: #ObjectMemorySimulatorMSB
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'ObjectMemorySimulatorMSB class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'ObjectMemorySimulatorMSB class' category: #'VMMaker-InterpreterSimulation'!
 ObjectMemorySimulatorMSB class
 	instanceVariableNames: ''!
 
-!classDefinition: #ObjectMemorySimulatorMSB64 category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #ObjectMemorySimulatorMSB64 category: #'VMMaker-InterpreterSimulation'!
 ObjectMemorySimulatorMSB subclass: #ObjectMemorySimulatorMSB64
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'ObjectMemorySimulatorMSB64 class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'ObjectMemorySimulatorMSB64 class' category: #'VMMaker-InterpreterSimulation'!
 ObjectMemorySimulatorMSB64 class
 	instanceVariableNames: ''!
 
-!classDefinition: #NewObjectMemory category: 'VMMaker-Interpreter'!
+!classDefinition: #NewObjectMemory category: #'VMMaker-Interpreter'!
 ObjectMemory subclass: #NewObjectMemory
 	instanceVariableNames: 'coInterpreter freeStart reserveStart scavengeThreshold needGCFlag fullGCLock edenBytes checkForLeaks statGCEndUsecs'
 	classVariableNames: 'AllocationCheckFiller WeakRootTableSize'
 	poolDictionaries: ''
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'NewObjectMemory class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'NewObjectMemory class' category: #'VMMaker-Interpreter'!
 NewObjectMemory class
 	instanceVariableNames: ''!
 
-!classDefinition: #NewObjectMemorySimulator category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #NewObjectMemorySimulator category: #'VMMaker-InterpreterSimulation'!
 NewObjectMemory subclass: #NewObjectMemorySimulator
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'NewObjectMemorySimulator class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'NewObjectMemorySimulator class' category: #'VMMaker-InterpreterSimulation'!
 NewObjectMemorySimulator class
 	instanceVariableNames: ''!
 
-!classDefinition: #NewObjectMemorySimulatorLSB category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #NewObjectMemorySimulatorLSB category: #'VMMaker-InterpreterSimulation'!
 NewObjectMemorySimulator subclass: #NewObjectMemorySimulatorLSB
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'NewObjectMemorySimulatorLSB class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'NewObjectMemorySimulatorLSB class' category: #'VMMaker-InterpreterSimulation'!
 NewObjectMemorySimulatorLSB class
 	instanceVariableNames: ''!
 
-!classDefinition: #NewObjectMemorySimulatorMSB category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #NewObjectMemorySimulatorMSB category: #'VMMaker-InterpreterSimulation'!
 NewObjectMemorySimulator subclass: #NewObjectMemorySimulatorMSB
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'NewObjectMemorySimulatorMSB class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'NewObjectMemorySimulatorMSB class' category: #'VMMaker-InterpreterSimulation'!
 NewObjectMemorySimulatorMSB class
 	instanceVariableNames: ''!
 
-!classDefinition: #InterpreterPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #InterpreterPlugin category: #'VMMaker-Plugins'!
 VMClass subclass: #InterpreterPlugin
 	instanceVariableNames: 'interpreterProxy moduleName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'InterpreterPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'InterpreterPlugin class' category: #'VMMaker-Plugins'!
 InterpreterPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #ADPCMCodecPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #ADPCMCodecPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #ADPCMCodecPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'ADPCMCodecPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'ADPCMCodecPlugin class' category: #'VMMaker-Plugins'!
 ADPCMCodecPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #B3DAcceleratorPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #B3DAcceleratorPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #B3DAcceleratorPlugin
 	instanceVariableNames: 'doRangeChecks'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'B3DAcceleratorPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'B3DAcceleratorPlugin class' category: #'VMMaker-Plugins'!
 B3DAcceleratorPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #BMPReadWriterPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #BMPReadWriterPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #BMPReadWriterPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'BMPReadWriterPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'BMPReadWriterPlugin class' category: #'VMMaker-Plugins'!
 BMPReadWriterPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #BalloonEngineBase category: 'VMMaker-Plugins'!
+!classDefinition: #BalloonEngineBase category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #BalloonEngineBase
 	instanceVariableNames: 'workBuffer objBuffer getBuffer aetBuffer spanBuffer engine formArray engineStopped geProfileTime dispatchedValue dispatchReturnValue objUsed doProfileStats copyBitsFn loadBBFn bbPluginName'
 	classVariableNames: 'EdgeInitTable EdgeStepTable FillTable WideLineFillTable WideLineWidthTable'
 	poolDictionaries: 'BalloonEngineConstants'
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'BalloonEngineBase class' category: 'VMMaker-Plugins'!
+!classDefinition: 'BalloonEngineBase class' category: #'VMMaker-Plugins'!
 BalloonEngineBase class
 	instanceVariableNames: ''!
 
-!classDefinition: #BalloonEnginePlugin category: 'VMMaker-Plugins'!
+!classDefinition: #BalloonEnginePlugin category: #'VMMaker-Plugins'!
 BalloonEngineBase subclass: #BalloonEnginePlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'BalloonEnginePlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'BalloonEnginePlugin class' category: #'VMMaker-Plugins'!
 BalloonEnginePlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #BalloonEngineSimulation category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #BalloonEngineSimulation category: #'VMMaker-InterpreterSimulation'!
 BalloonEnginePlugin subclass: #BalloonEngineSimulation
 	instanceVariableNames: 'bbObj savedBBObj workBufferArray'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'BalloonEngineSimulation class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'BalloonEngineSimulation class' category: #'VMMaker-InterpreterSimulation'!
 BalloonEngineSimulation class
 	instanceVariableNames: ''!
 
-!classDefinition: #BrokenPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #BrokenPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #BrokenPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'BrokenPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'BrokenPlugin class' category: #'VMMaker-Plugins'!
 BrokenPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #CameraPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #CameraPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #CameraPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'CameraPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'CameraPlugin class' category: #'VMMaker-Plugins'!
 CameraPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #CroquetPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #CroquetPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #CroquetPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'CroquetPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'CroquetPlugin class' category: #'VMMaker-Plugins'!
 CroquetPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #DropPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #DropPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #DropPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'DropPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'DropPlugin class' category: #'VMMaker-Plugins'!
 DropPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #FFIPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #FFIPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #FFIPlugin
 	instanceVariableNames: 'ffiLastError ffiArgSpec ffiArgSpecSize ffiArgHeader ffiRetOop ffiRetClass ffiRetSpec ffiRetSpecSize ffiRetHeader ffiLogEnabled externalFunctionInstSize'
 	classVariableNames: ''
 	poolDictionaries: 'FFIConstants'
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'FFIPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'FFIPlugin class' category: #'VMMaker-Plugins'!
 FFIPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #FFTPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #FFTPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #FFTPlugin
 	instanceVariableNames: 'nu fftSize sinTable sinTableSize permTable permTableSize realData realDataSize imagData imagDataSize'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'FFTPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'FFTPlugin class' category: #'VMMaker-Plugins'!
 FFTPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #FloatArrayPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #FloatArrayPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #FloatArrayPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'FloatArrayPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'FloatArrayPlugin class' category: #'VMMaker-Plugins'!
 FloatArrayPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #FloatMathPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #FloatMathPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #FloatMathPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'FloatMathPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'FloatMathPlugin class' category: #'VMMaker-Plugins'!
 FloatMathPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #FloatMathPluginSimulator category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #FloatMathPluginSimulator category: #'VMMaker-InterpreterSimulation'!
 FloatMathPlugin subclass: #FloatMathPluginSimulator
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'FloatMathPluginSimulator class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'FloatMathPluginSimulator class' category: #'VMMaker-InterpreterSimulation'!
 FloatMathPluginSimulator class
 	instanceVariableNames: ''!
 
-!classDefinition: #InflatePlugin category: 'VMMaker-Plugins'!
+!classDefinition: #InflatePlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #InflatePlugin
 	instanceVariableNames: 'zipCollection zipReadLimit zipPosition zipState zipBitBuf zipBitPos zipSource zipSourcePos zipSourceLimit zipLitTable zipDistTable zipCollectionSize zipLitTableSize zipDistTableSize readStreamInstSize'
 	classVariableNames: 'MaxBits StateNoMoreData'
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'InflatePlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'InflatePlugin class' category: #'VMMaker-Plugins'!
 InflatePlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #DeflatePlugin category: 'VMMaker-Plugins'!
+!classDefinition: #DeflatePlugin category: #'VMMaker-Plugins'!
 InflatePlugin subclass: #DeflatePlugin
 	instanceVariableNames: 'zipHashHead zipHashTail zipHashValue zipBlockPos zipBlockStart zipLiterals zipDistances zipLiteralFreq zipDistanceFreq zipLiteralCount zipLiteralSize zipMatchCount zipMatchLengthCodes zipDistanceCodes zipCrcTable zipExtraLengthBits zipExtraDistanceBits zipBaseLength zipBaseDistance writeStreamInstSize'
 	classVariableNames: 'DeflateHashBits DeflateHashMask DeflateHashShift DeflateHashTableSize DeflateMaxDistance DeflateMaxDistanceCodes DeflateMaxLiteralCodes DeflateMaxMatch DeflateMinMatch DeflateWindowMask DeflateWindowSize'
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'DeflatePlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'DeflatePlugin class' category: #'VMMaker-Plugins'!
 DeflatePlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #JPEGReaderPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #JPEGReaderPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #JPEGReaderPlugin
 	instanceVariableNames: 'yComponent crComponent cbComponent ySampleStream crSampleStream cbSampleStream yBlocks crBlocks cbBlocks residuals ditherMask jpegBits jpegBitsSize jpegNaturalOrder jsCollection jsPosition jsReadLimit jsBitBuffer jsBitCount acTable dcTable acTableSize dcTableSize'
 	classVariableNames: 'BlockWidthIndex BlueIndex ConstBits CurrentXIndex CurrentYIndex DCTSize DCTSize2 FIXn0n298631336 FIXn0n34414 FIXn0n390180644 FIXn0n541196100 FIXn0n71414 FIXn0n765366865 FIXn0n899976223 FIXn1n175875602 FIXn1n40200 FIXn1n501321110 FIXn1n77200 FIXn1n847759065 FIXn1n961570560 FIXn2n053119869 FIXn2n562915447 FIXn3n072711026 GreenIndex HScaleIndex LookaheadBitsIndex LookaheadSymbolIndex MCUBlockIndex MCUWidthIndex MaxBits MaxMCUBlocks MaxSample MaxcodeIndex MinComponentSize Pass1Bits Pass1Div Pass2Div PriorDCValueIndex RedIndex SampleOffset VScaleIndex'
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'JPEGReaderPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'JPEGReaderPlugin class' category: #'VMMaker-Plugins'!
 JPEGReaderPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #KlattSynthesizerPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #KlattSynthesizerPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #KlattSynthesizerPlugin
 	instanceVariableNames: 'resonators frame pitch t0 nper nopen nmod a1 a2 x1 x2 b1 c1 glast vlast nlast periodCount samplesCount seed cascade samplesPerFrame samplingRate'
 	classVariableNames: 'A1v A2f A2v A3f A3v A4f A4v A5f A6f Anv Aspiration Atv B1 B2 B2f B3 B3f B4 B4f B5 B5f B6 B6f Bnp Bnz Btp Btz Bypass Db1 Df1 Diplophonia Epsilon F0 F1 F2 F3 F4 F5 F6 Flutter Fnp Fnz Friction Ftp Ftz Gain Jitter PI Ra Rk Ro Shimmer Turbulence Voicing'
 	poolDictionaries: 'KlattResonatorIndices'
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'KlattSynthesizerPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'KlattSynthesizerPlugin class' category: #'VMMaker-Plugins'!
 KlattSynthesizerPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #Matrix2x3Plugin category: 'VMMaker-Plugins'!
+!classDefinition: #Matrix2x3Plugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #Matrix2x3Plugin
 	instanceVariableNames: 'm23ResultX m23ResultY m23ArgX m23ArgY'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'Matrix2x3Plugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'Matrix2x3Plugin class' category: #'VMMaker-Plugins'!
 Matrix2x3Plugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #MiscPrimitivePlugin category: 'VMMaker-Plugins'!
+!classDefinition: #MiscPrimitivePlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #MiscPrimitivePlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'MiscPrimitivePlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'MiscPrimitivePlugin class' category: #'VMMaker-Plugins'!
 MiscPrimitivePlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #ScratchPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #ScratchPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #ScratchPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'ScratchPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'ScratchPlugin class' category: #'VMMaker-Plugins'!
 ScratchPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #SecurityPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #SecurityPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #SecurityPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'SecurityPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'SecurityPlugin class' category: #'VMMaker-Plugins'!
 SecurityPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #SoundCodecPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #SoundCodecPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #SoundCodecPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'SoundCodecPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'SoundCodecPlugin class' category: #'VMMaker-Plugins'!
 SoundCodecPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #SoundGenerationPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #SoundGenerationPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #SoundGenerationPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'SoundGenerationPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'SoundGenerationPlugin class' category: #'VMMaker-Plugins'!
 SoundGenerationPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #SqueakSSLPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #SqueakSSLPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #SqueakSSLPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'SqueakSSLPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'SqueakSSLPlugin class' category: #'VMMaker-Plugins'!
 SqueakSSLPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #StarSqueakPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #StarSqueakPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #StarSqueakPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'StarSqueakPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'StarSqueakPlugin class' category: #'VMMaker-Plugins'!
 StarSqueakPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #SurfacePlugin category: 'VMMaker-Plugins'!
+!classDefinition: #SurfacePlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #SurfacePlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'SurfacePlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'SurfacePlugin class' category: #'VMMaker-Plugins'!
 SurfacePlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #UnicodePlugin category: 'VMMaker-Plugins'!
+!classDefinition: #UnicodePlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #UnicodePlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'UnicodePlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'UnicodePlugin class' category: #'VMMaker-Plugins'!
 UnicodePlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #WeDoPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #WeDoPlugin category: #'VMMaker-Plugins'!
 InterpreterPlugin subclass: #WeDoPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'WeDoPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'WeDoPlugin class' category: #'VMMaker-Plugins'!
 WeDoPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #SmartSyntaxInterpreterPlugin category: 'VMMaker-SmartSyntaxPlugins'!
+!classDefinition: #SmartSyntaxInterpreterPlugin category: #'VMMaker-SmartSyntaxPlugins'!
 InterpreterPlugin subclass: #SmartSyntaxInterpreterPlugin
 	instanceVariableNames: 'simulator'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-SmartSyntaxPlugins'!
-!classDefinition: 'SmartSyntaxInterpreterPlugin class' category: 'VMMaker-SmartSyntaxPlugins'!
+!classDefinition: 'SmartSyntaxInterpreterPlugin class' category: #'VMMaker-SmartSyntaxPlugins'!
 SmartSyntaxInterpreterPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #BitBltSimulation category: 'VMMaker-Interpreter'!
+!classDefinition: #BitBltSimulation category: #'VMMaker-Interpreter'!
 SmartSyntaxInterpreterPlugin subclass: #BitBltSimulation
 	instanceVariableNames: 'destForm sourceForm halftoneForm combinationRule destX destY width height sourceX sourceY clipX clipY clipWidth clipHeight sourceWidth sourceHeight sourceDepth sourcePitch sourceBits sourcePPW sourceMSB destWidth destHeight destDepth destPitch destBits destPPW destMSB bitCount skew mask1 mask2 preload nWords destMask hDir vDir sourceIndex sourceDelta destIndex destDelta sx sy dx dy bbW bbH halftoneHeight noSource noHalftone halftoneBase sourceAlpha srcBitShift dstBitShift bitBltOop affectedL affectedR affectedT affectedB opTable maskTable ditherMatrix4x4 ditherThresholds16 ditherValues16 hasSurfaceLock warpSrcShift warpSrcMask warpAlignShift warpAlignMask warpBitShiftTable querySurfaceFn lockSurfaceFn unlockSurfaceFn isWarping cmFlags cmMask cmShiftTable cmMaskTable cmLookupTable cmBitsPerColor dither8Lookup componentAlphaModeColor componentAlphaModeAlpha ungammaLookupTable gammaLookupTable'
 	classVariableNames: 'AllOnes AlphaIndex BBClipHeightIndex BBClipWidthIndex BBClipXIndex BBClipYIndex BBColorMapIndex BBDestFormIndex BBDestXIndex BBDestYIndex BBHalftoneFormIndex BBHeightIndex BBLastIndex BBRuleIndex BBSourceFormIndex BBSourceXIndex BBSourceYIndex BBWarpBase BBWidthIndex BBXTableIndex BinaryPoint BlueIndex ColorMapFixedPart ColorMapIndexedPart ColorMapNewStyle ColorMapPresent CrossedX EndOfRun FixedPt1 FormBitsIndex FormDepthIndex FormHeightIndex FormWidthIndex GreenIndex JitBltHookSize OpTable OpTableSize RedIndex'
 	poolDictionaries: ''
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'BitBltSimulation class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'BitBltSimulation class' category: #'VMMaker-Interpreter'!
 BitBltSimulation class
 	instanceVariableNames: ''!
 
-!classDefinition: #BitBltSimulator category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: #BitBltSimulator category: #'VMMaker-InterpreterSimulation'!
 BitBltSimulation subclass: #BitBltSimulator
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-InterpreterSimulation'!
-!classDefinition: 'BitBltSimulator class' category: 'VMMaker-InterpreterSimulation'!
+!classDefinition: 'BitBltSimulator class' category: #'VMMaker-InterpreterSimulation'!
 BitBltSimulator class
 	instanceVariableNames: 'opTable maskTable warpBitShiftTable ditherMatrix4x4 ditherThresholds16 ditherValues16 dither8Lookup isInitialised'!
 
-!classDefinition: #AsynchFilePlugin category: 'VMMaker-Plugins'!
+!classDefinition: #AsynchFilePlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #AsynchFilePlugin
 	instanceVariableNames: 'sCOAFfn'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'AsynchFilePlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'AsynchFilePlugin class' category: #'VMMaker-Plugins'!
 AsynchFilePlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #ClipboardExtendedPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #ClipboardExtendedPlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #ClipboardExtendedPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'ClipboardExtendedPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'ClipboardExtendedPlugin class' category: #'VMMaker-Plugins'!
 ClipboardExtendedPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #FileCopyPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #FileCopyPlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #FileCopyPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'FileCopyPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'FileCopyPlugin class' category: #'VMMaker-Plugins'!
 FileCopyPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #GeniePlugin category: 'VMMaker-Plugins'!
+!classDefinition: #GeniePlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #GeniePlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'GeniePlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'GeniePlugin class' category: #'VMMaker-Plugins'!
 GeniePlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #HostWindowPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #HostWindowPlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #HostWindowPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'HostWindowPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'HostWindowPlugin class' category: #'VMMaker-Plugins'!
 HostWindowPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #ImmX11Plugin category: 'VMMaker-Plugins'!
+!classDefinition: #ImmX11Plugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #ImmX11Plugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'ImmX11Plugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'ImmX11Plugin class' category: #'VMMaker-Plugins'!
 ImmX11Plugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #InternetConfigPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #InternetConfigPlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #InternetConfigPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'InternetConfigPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'InternetConfigPlugin class' category: #'VMMaker-Plugins'!
 InternetConfigPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #JPEGReadWriter2Plugin category: 'VMMaker-Plugins'!
+!classDefinition: #JPEGReadWriter2Plugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #JPEGReadWriter2Plugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'JPEGReadWriter2Plugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'JPEGReadWriter2Plugin class' category: #'VMMaker-Plugins'!
 JPEGReadWriter2Plugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #JoystickTabletPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #JoystickTabletPlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #JoystickTabletPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'JoystickTabletPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'JoystickTabletPlugin class' category: #'VMMaker-Plugins'!
 JoystickTabletPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #LargeIntegersPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #LargeIntegersPlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #LargeIntegersPlugin
 	instanceVariableNames: 'andOpIndex orOpIndex xorOpIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'LargeIntegersPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'LargeIntegersPlugin class' category: #'VMMaker-Plugins'!
 LargeIntegersPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #LocalePlugin category: 'VMMaker-Plugins'!
+!classDefinition: #LocalePlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #LocalePlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'LocalePlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'LocalePlugin class' category: #'VMMaker-Plugins'!
 LocalePlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #MIDIPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #MIDIPlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #MIDIPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'MIDIPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'MIDIPlugin class' category: #'VMMaker-Plugins'!
 MIDIPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #MacMenubarPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #MacMenubarPlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #MacMenubarPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'MacMenubarPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'MacMenubarPlugin class' category: #'VMMaker-Plugins'!
 MacMenubarPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #Mpeg3Plugin category: 'VMMaker-Plugins'!
+!classDefinition: #Mpeg3Plugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #Mpeg3Plugin
 	instanceVariableNames: 'maximumNumberOfFilesToWatch mpegFiles'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'Mpeg3Plugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'Mpeg3Plugin class' category: #'VMMaker-Plugins'!
 Mpeg3Plugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #QuicktimePlugin category: 'VMMaker-Plugins'!
+!classDefinition: #QuicktimePlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #QuicktimePlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'QuicktimePlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'QuicktimePlugin class' category: #'VMMaker-Plugins'!
 QuicktimePlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #RePlugin category: 'VMMaker-Plugins'!
+!classDefinition: #RePlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #RePlugin
 	instanceVariableNames: 'netMemory numAllocs numFrees lastAlloc patternStr rcvr compileFlags pcrePtr extraPtr errorStr errorOffset matchFlags patternStrPtr errorStrBuffer'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'RePlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'RePlugin class' category: #'VMMaker-Plugins'!
 RePlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #SerialPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #SerialPlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #SerialPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'SerialPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'SerialPlugin class' category: #'VMMaker-Plugins'!
 SerialPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #SocketPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #SocketPlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #SocketPlugin
 	instanceVariableNames: 'sDSAfn sHSAfn sCCTPfn sCCLOPfn sCCSOTfn'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'SocketPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'SocketPlugin class' category: #'VMMaker-Plugins'!
 SocketPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #SoundPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #SoundPlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #SoundPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'SoundPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'SoundPlugin class' category: #'VMMaker-Plugins'!
 SoundPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #UUIDPlugin category: 'VMMaker-Plugins'!
+!classDefinition: #UUIDPlugin category: #'VMMaker-Plugins'!
 SmartSyntaxInterpreterPlugin subclass: #UUIDPlugin
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Plugins'!
-!classDefinition: 'UUIDPlugin class' category: 'VMMaker-Plugins'!
+!classDefinition: 'UUIDPlugin class' category: #'VMMaker-Plugins'!
 UUIDPlugin class
 	instanceVariableNames: ''!
 
-!classDefinition: #SmartSyntaxPluginSimulator category: 'VMMaker-SmartSyntaxPlugins'!
+!classDefinition: #SmartSyntaxPluginSimulator category: #'VMMaker-SmartSyntaxPlugins'!
 InterpreterPlugin subclass: #SmartSyntaxPluginSimulator
 	instanceVariableNames: 'actualPlugin signatureMap forMap'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-SmartSyntaxPlugins'!
-!classDefinition: 'SmartSyntaxPluginSimulator class' category: 'VMMaker-SmartSyntaxPlugins'!
+!classDefinition: 'SmartSyntaxPluginSimulator class' category: #'VMMaker-SmartSyntaxPlugins'!
 SmartSyntaxPluginSimulator class
 	instanceVariableNames: ''!
 
-!classDefinition: #VMStructType category: 'VMMaker-Support'!
+!classDefinition: #VMStructType category: #'VMMaker-Support'!
 VMClass subclass: #VMStructType
 	instanceVariableNames: ''
 	classVariableNames: 'StructTypeNameCache'
 	poolDictionaries: ''
 	category: 'VMMaker-Support'!
-!classDefinition: 'VMStructType class' category: 'VMMaker-Support'!
+!classDefinition: 'VMStructType class' category: #'VMMaker-Support'!
 VMStructType class
 	instanceVariableNames: ''!
 
-!classDefinition: #InterpreterStackPage category: 'VMMaker-Interpreter'!
+!classDefinition: #InterpreterStackPage category: #'VMMaker-Interpreter'!
 VMStructType subclass: #InterpreterStackPage
 	instanceVariableNames: 'stackLimit headSP headFP baseFP baseAddress realStackLimit lastAddress trace nextPage prevPage'
 	classVariableNames: 'LargeContextBytes'
 	poolDictionaries: 'VMBasicConstants VMSqueakV3BytecodeConstants'
 	category: 'VMMaker-Interpreter'!
-!classDefinition: 'InterpreterStackPage class' category: 'VMMaker-Interpreter'!
+!classDefinition: 'InterpreterStackPage class' category: #'VMMaker-Interpreter'!
 InterpreterStackPage class
 	instanceVariableNames: ''!
 
-!classDefinition: #VMCallbackContext category: 'VMMaker-Support'!
+!classDefinition: #VMCallbackContext category: #'VMMaker-Support'!
 VMStructType subclass: #VMCallbackContext
 	instanceVariableNames: 'thunkp stackp intregargsp floatregargsp savedCStackPointer savedCFramePointer rvs trampoline savedReenterInterpreter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-Support'!
-!classDefinition: 'VMCallbackContext class' category: 'VMMaker-Support'!
+!classDefinition: 'VMCallbackContext class' category: #'VMMaker-Support'!
 VMCallbackContext class
 	instanceVariableNames: ''!
 
-!classDefinition: #CogClass category: 'VMMaker-JIT'!
+!classDefinition: #CogClass category: #'VMMaker-JIT'!
 VMClass subclass: #CogClass
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-JIT'!
-!classDefinition: 'CogClass class' category: 'VMMaker-JIT'!
+!classDefinition: 'CogClass class' category: #'VMMaker-JIT'!
 CogClass class
 	instanceVariableNames: ''!
 
-!classDefinition: #Cogit category: 'VMMaker-JIT'!
+!classDefinition: #Cogit category: #'VMMaker-JIT'!
 CogClass subclass: #Cogit
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'VMMaker-JIT'!
-!classDefinition: 'Cogit class' category: 'VMMaker-JIT'!
+!classDefinition: 'Cogit class' category: #'VMMaker-JIT'!
 Cogit class
 	instanceVariableNames: ''!
 
@@ -42673,13 +42673,33 @@ reverseBytesInImage
 	 other format conversions."
 	self updateObjectsPostByteSwapFrom: objectMemory firstObject to: objectMemory getEndOfMemory! !
 
-!StackInterpreter methodsFor: 'image save/restore' stamp: 'eem 4/22/2010 13:48'!
+!StackInterpreter methodsFor: 'image save/restore' stamp: 'jmv 4/18/2024 16:16:20'!
 setImageHeaderFlagsFrom: headerFlags
-	"Set the flags that are contained in the 7th long of the image header."
-	imageHeaderFlags := headerFlags. "so as to preserve unrecognised flags."
+	"Set the flags that are contained in the 7th long of the image header. This is sent at image load time."
+	| flagInterpretedMethods newFinalization primitiveDoMixedArithmetic sendWheelEvents upscaleDisplayIfHighDPI |
+	imageHeaderFlags := headerFlags.
+	"so as to preserve unrecognised flags."
 	fullScreenFlag := headerFlags bitAnd: 1.
-	imageFloatsBigEndian := (headerFlags bitAnd: 2) = 0 ifTrue: [1] ifFalse: [0].
-	preemptionYields := (headerFlags bitAnd: 16) = 0! !
+	imageFloatsBigEndian := (headerFlags noMask: 2)
+		ifTrue: [ 1 ]
+		ifFalse: [ 0 ].
+	"processHasThreadAffinity := headerFlags anyMask: 4. specific to CoInterpreterMT"
+	flagInterpretedMethods := headerFlags anyMask: 8.
+	preemptionYields := headerFlags noMask: 16.
+	"noThreadingOfGUIThread := headerFlags anyMask: 32. specific to CoInterpreterMT"
+	newFinalization := headerFlags anyMask: 64.
+	sendWheelEvents := headerFlags anyMask: 128.
+	(self
+		cCode: [ primitiveDoMixedArithmetic < 0 ]
+		inSmalltalk: [
+			primitiveDoMixedArithmetic isInteger and: [ primitiveDoMixedArithmetic < 0 ]]) ifTrue: [ "i.e. has it not been set on the command line?"
+		primitiveDoMixedArithmetic := headerFlags noMask: 256 ].
+	"N.B. flag mask 512 is responded to by the FilePlugin & FileAttributesPlugin"
+	(self
+		cCode: [ upscaleDisplayIfHighDPI < 0 ]
+		inSmalltalk: [
+			upscaleDisplayIfHighDPI isInteger and: [ upscaleDisplayIfHighDPI < 0 ]]) ifTrue: [ "i.e. has it not been set on the command line?"
+		upscaleDisplayIfHighDPI := headerFlags noMask: 1024 ].! !
 
 !StackInterpreter methodsFor: 'image save/restore' stamp: 'dtl 9/25/2019 20:56'!
 snapshot: embedded 
