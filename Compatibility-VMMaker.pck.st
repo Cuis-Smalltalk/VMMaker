@@ -1,6 +1,6 @@
 'From Cuis 6.0 [latest update: #5559] on 30 November 2022 at 8:54:18 am'!
 'Description '!
-!provides: 'Compatibility-VMMaker' 1 5!
+!provides: 'Compatibility-VMMaker' 1 6!
 SystemOrganization addCategory: 'Compatibility-VMMaker'!
 
 
@@ -1194,7 +1194,7 @@ register: anObject
 !StandardFileStream class methodsFor: 'registry' stamp: 'ul 8/27/2010 23:24'!
 registry
 	
-	^Registry ifNil: [ Registry := WeakRegistry new ]! !
+	^Registry ifNil: [ Registry := FinalizationRegistry new ]! !
 
 !StandardFileStream class methodsFor: 'registry' stamp: 'jmv 4/25/2016 15:14'!
 retryWithGC: execBlock until: testBlock forFileNamed: fullName
