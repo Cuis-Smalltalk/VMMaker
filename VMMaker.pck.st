@@ -4,7 +4,7 @@
 This package is in Cuis .pck.st format and started from VMMaker-dtl.422.mcz from http://source.squeak.org/VMMaker.html and http://source.squeak.org/VMMaker/ as a verbatim copy, except for convertion to LF for line endings and removal of a couple of name clashes (method parameter breakCount with same name as instance variable in StackInterpreterSimulator).
 
 It is currently updated up to VMMaker-dtl.422.mcz (please keep this reference updated)'!
-!provides: 'VMMaker' 1 15!
+!provides: 'VMMaker' 1 16!
 !requires: 'Identities-UUID' 1 8 nil!
 !requires: 'Balloon' 1 4 nil!
 !requires: 'Compatibility-VMMaker' 1 1 nil!
@@ -14683,7 +14683,7 @@ addStructClass: aClass
 				self addStructMethodFor: aClass selector: sel]].
 	aClass declareCVarsIn: self! !
 
-!CCodeGenerator methodsFor: 'public' stamp: 'ikp 9/26/97 14:48'!
+!CCodeGenerator methodsFor: 'public' stamp: 'ikp 9/26/1997 14:48'!
 codeString
 	"Return a string containing all the C code for the code base. Used for testing."
 
@@ -14788,7 +14788,7 @@ storeAPIExportHeader: headerName OnFile: fullHeaderPath
 	(self needToGenerateHeader: headerName file: fullHeaderPath contents: header) ifTrue:
 		[self storeHeaderOnFile: fullHeaderPath contents: header]! !
 
-!CCodeGenerator methodsFor: 'public' stamp: 'ikp 9/26/97 14:50'!
+!CCodeGenerator methodsFor: 'public' stamp: 'ikp 9/26/1997 14:50'!
 storeCodeOnFile: fileName doInlining: inlineFlag
 	"Store C code for this code base on the given file."
 
@@ -16331,7 +16331,7 @@ pruneUnreachableMethods
 		methods at: sel ifPresent:[:meth| newMethods at: sel put: meth]].
 	methods := newMethods! !
 
-!CCodeGenerator methodsFor: 'inlining' stamp: 'ikp 9/26/97 14:50'!
+!CCodeGenerator methodsFor: 'inlining' stamp: 'ikp 9/26/1997 14:50'!
 removeAssertions
 	"Remove all assertions in method bodies.  This is for the benefit of inlining, which
 	fails to recognise and disregard empty method bodies when checking the inlinability
@@ -19396,7 +19396,7 @@ parseTree: aNode
 
 	parseTree := aNode.! !
 
-!TMethod methodsFor: 'accessing' stamp: 'jm 2/12/98 11:56'!
+!TMethod methodsFor: 'accessing' stamp: 'jm 2/12/1998 11:56'!
 primitive
 	"The primitive number of this method; zero if not a primitive."
 
@@ -20333,7 +20333,7 @@ checkSuccessExpr
 	^ self statementsFor: expr varName: ''
 ! !
 
-!TMethod methodsFor: 'primitive compilation' stamp: 'jm 2/15/98 16:48'!
+!TMethod methodsFor: 'primitive compilation' stamp: 'jm 2/15/1998 16:48'!
 covertToZeroBasedArrayReferences
 	"Replace the index expressions in at: and at:put: messages with (<expr> - 1), since C uses zero-based array indexing."
 	"Note: Up through release 1.31, generated primitives used the convention that array variables pointed to the first element. That meant that Smalltalk one-based index expressions had to have one subtracted to yield a zero-based index. Later, we decided to adjust the base address by -1 once in the primitive prolog rather on every array access. This resulted in a five percent performance increase for the bitmap compress/decompress primitives. This method is retained as documentation and in case we choose to revert the the previous scheme."
@@ -20863,7 +20863,7 @@ recordDeclarations
 	].
 	parseTree setStatements: newStatements asArray.! !
 
-!TMethod methodsFor: 'transformations' stamp: 'ikp 9/26/97 14:50'!
+!TMethod methodsFor: 'transformations' stamp: 'ikp 9/26/1997 14:50'!
 removeAssertions
 	parseTree removeAssertions! !
 
@@ -20979,7 +20979,7 @@ hasReturn
 	parseTree nodesDo: [ :n | n isReturn ifTrue: [ ^ true ]].
 	^ false! !
 
-!TMethod methodsFor: 'testing' stamp: 'ikp 9/26/97 14:50'!
+!TMethod methodsFor: 'testing' stamp: 'ikp 9/26/1997 14:50'!
 isAssertion
 	^(selector beginsWith: 'assert') or: [selector beginsWith: 'verify']! !
 
@@ -21146,7 +21146,7 @@ setSelector: sel definingClass: class args: argList locals: localList block: aBl
 	self recordDeclarations.
 	globalStructureBuildMethodHasFoo := 0! !
 
-!TMethod methodsFor: 'initialization' stamp: 'jm 2/12/98 11:55'!
+!TMethod methodsFor: 'initialization' stamp: 'jm 2/12/1998 11:55'!
 setSelector: sel returnType: retType args: argList locals: localList declarations: decls primitive: primNumber parseTree: aNode labels: labelList complete: completeFlag
 	"Initialize this method using the given information. Used for copying."
 
@@ -21714,11 +21714,11 @@ hasExplicitReturn
 	].
 	^false! !
 
-!TParseNode methodsFor: 'testing' stamp: 'ikp 9/26/97 14:50'!
+!TParseNode methodsFor: 'testing' stamp: 'ikp 9/26/1997 14:50'!
 isAssertion
 	^false! !
 
-!TParseNode methodsFor: 'testing' stamp: 'ikp 9/26/97 14:50'!
+!TParseNode methodsFor: 'testing' stamp: 'ikp 9/26/1997 14:50'!
 isAssignment
 
 	^false! !
@@ -21899,7 +21899,7 @@ bindVariablesIn: aDictionary
 mapReceiversIn: aDictionary
 	^self! !
 
-!TParseNode methodsFor: 'transformations' stamp: 'ikp 9/26/97 14:50'!
+!TParseNode methodsFor: 'transformations' stamp: 'ikp 9/26/1997 14:50'!
 removeAssertions
 	"default: do nothing"! !
 
@@ -21990,7 +21990,7 @@ mapReceiversIn: aDictionary
 	expression mapReceiversIn: aDictionary
 ! !
 
-!TAssignmentNode methodsFor: 'transformations' stamp: 'ikp 9/26/97 14:50'!
+!TAssignmentNode methodsFor: 'transformations' stamp: 'ikp 9/26/1997 14:50'!
 removeAssertions
 
 	expression removeAssertions! !
@@ -22411,7 +22411,7 @@ processSharedCodeBlocks: caseTree forCase: caseIndex in: codeGen method: aTMetho
 
 	].! !
 
-!TCaseStmtNode methodsFor: 'transformations' stamp: 'ikp 9/26/97 14:50'!
+!TCaseStmtNode methodsFor: 'transformations' stamp: 'ikp 9/26/1997 14:50'!
 removeAssertions
 	expression removeAssertions.
 	cases do: [ :case | case removeAssertions ].! !
@@ -22804,7 +22804,7 @@ mapReceiversIn: aDictionary
 	expression mapReceiversIn: aDictionary
 ! !
 
-!TReturnNode methodsFor: 'transformations' stamp: 'ikp 9/26/97 14:50'!
+!TReturnNode methodsFor: 'transformations' stamp: 'ikp 9/26/1997 14:50'!
 removeAssertions
 	expression removeAssertions! !
 
@@ -22990,7 +22990,7 @@ mapReceiversIn: aDictionary
 	receiver mapReceiversIn: aDictionary.
 	arguments collect: [:a | a mapReceiversIn: aDictionary]! !
 
-!TSendNode methodsFor: 'transformations' stamp: 'ikp 9/26/97 14:50'!
+!TSendNode methodsFor: 'transformations' stamp: 'ikp 9/26/1997 14:50'!
 removeAssertions
 	receiver removeAssertions.
 	arguments do: [:arg | arg removeAssertions].! !
@@ -23160,7 +23160,7 @@ shouldIncludeReceiverAsFirstArgument: aCodeGen
 endsWithReturn
 	^self isReturningIf! !
 
-!TSendNode methodsFor: 'testing' stamp: 'ikp 9/26/97 14:50'!
+!TSendNode methodsFor: 'testing' stamp: 'ikp 9/26/1997 14:50'!
 isAssertion
 	^(selector beginsWith: 'assert') or: [selector beginsWith: 'verify']! !
 
@@ -23377,7 +23377,7 @@ mapReceiversIn: aDictionary
 	statements do: [ :s | s mapReceiversIn: aDictionary ]
 ! !
 
-!TStmtListNode methodsFor: 'transformations' stamp: 'ikp 9/26/97 14:50'!
+!TStmtListNode methodsFor: 'transformations' stamp: 'ikp 9/26/1997 14:50'!
 removeAssertions
 	| newStatements |
 	newStatements := OrderedCollection new.
@@ -27611,7 +27611,7 @@ primitivePushFalse
 	self popStack.
 	self push: objectMemory getFalseObj! !
 
-!InterpreterPrimitives methodsFor: 'quick primitives - context interpreter' stamp: 'jm 9/18/97 21:06'!
+!InterpreterPrimitives methodsFor: 'quick primitives - context interpreter' stamp: 'jm 9/18/1997 21:06'!
 primitivePushMinusOne
 	self popStack.
 	self push: ConstMinusOne! !
@@ -27621,12 +27621,12 @@ primitivePushNil
 	self popStack.
 	self push: objectMemory getNilObj! !
 
-!InterpreterPrimitives methodsFor: 'quick primitives - context interpreter' stamp: 'jm 9/18/97 21:06'!
+!InterpreterPrimitives methodsFor: 'quick primitives - context interpreter' stamp: 'jm 9/18/1997 21:06'!
 primitivePushOne
 	self popStack.
 	self push: ConstOne! !
 
-!InterpreterPrimitives methodsFor: 'quick primitives - context interpreter' stamp: 'jm 9/18/97 21:06'!
+!InterpreterPrimitives methodsFor: 'quick primitives - context interpreter' stamp: 'jm 9/18/1997 21:06'!
 primitivePushSelf
 "	no-op, really...
 	thisReceiver := self popStack.
@@ -27638,12 +27638,12 @@ primitivePushTrue
 	self popStack.
 	self push: objectMemory getTrueObj! !
 
-!InterpreterPrimitives methodsFor: 'quick primitives - context interpreter' stamp: 'jm 9/18/97 21:06'!
+!InterpreterPrimitives methodsFor: 'quick primitives - context interpreter' stamp: 'jm 9/18/1997 21:06'!
 primitivePushTwo
 	self popStack.
 	self push: ConstTwo! !
 
-!InterpreterPrimitives methodsFor: 'quick primitives - context interpreter' stamp: 'jm 9/18/97 21:06'!
+!InterpreterPrimitives methodsFor: 'quick primitives - context interpreter' stamp: 'jm 9/18/1997 21:06'!
 primitivePushZero
 	self popStack.
 	self push: ConstZero! !
@@ -27873,7 +27873,7 @@ bytecodePrimAdd
 	argumentCount := 1.
 	self normalSend! !
 
-!Interpreter methodsFor: 'common selector sends' stamp: 'di 6/21/97 08:58'!
+!Interpreter methodsFor: 'common selector sends' stamp: 'di 6/21/1997 08:58'!
 bytecodePrimAtEnd
 	messageSelector := self specialSelector: 21.
 	argumentCount := 0.
@@ -28027,13 +28027,13 @@ bytecodePrimNewWithArg
 	self normalSend.
 ! !
 
-!Interpreter methodsFor: 'common selector sends' stamp: 'di 6/21/97 08:58'!
+!Interpreter methodsFor: 'common selector sends' stamp: 'di 6/21/1997 08:58'!
 bytecodePrimNext
 	messageSelector := self specialSelector: 19.
 	argumentCount := 0.
 	self normalSend.! !
 
-!Interpreter methodsFor: 'common selector sends' stamp: 'di 6/21/97 10:12'!
+!Interpreter methodsFor: 'common selector sends' stamp: 'di 6/21/1997 10:12'!
 bytecodePrimNextPut
 	messageSelector := self specialSelector: 20.
 	argumentCount := 1.
@@ -35917,7 +35917,7 @@ primitiveKbdPeek
 		ifTrue: [self pushInteger: Sensor primKbdPeek]
 		ifFalse: [self push: objectMemory getNilObj]! !
 
-!InterpreterSimulator methodsFor: 'I/O primitives' stamp: 'di 9/23/97 12:54'!
+!InterpreterSimulator methodsFor: 'I/O primitives' stamp: 'di 9/23/1997 12:54'!
 primitiveMouseButtons
 	| buttons |
 	self pop: 1.
@@ -36157,13 +36157,13 @@ ioMicroSecondClock
 ioProcessEventsEveryMSecs: mSecs
 	"Noop during simulation."! !
 
-!InterpreterSimulator methodsFor: 'I/O primitives support' stamp: 'jm 9/24/97 22:52'!
+!InterpreterSimulator methodsFor: 'I/O primitives support' stamp: 'jm 9/24/1997 22:52'!
 ioScreenSize
 	"Return the screen extent packed into 32 bits."
 
 	^ (displayForm width << 16) + displayForm height! !
 
-!InterpreterSimulator methodsFor: 'I/O primitives support' stamp: 'jm 9/24/97 22:52'!
+!InterpreterSimulator methodsFor: 'I/O primitives support' stamp: 'jm 9/24/1997 22:52'!
 ioSeconds
 	"Return the value of the second clock."
 
@@ -48709,7 +48709,7 @@ primitiveKbdPeek
 		ifTrue: [self pushInteger: Sensor primKbdPeek]
 		ifFalse: [self push: objectMemory nilObject]! !
 
-!StackInterpreterSimulator methodsFor: 'I/O primitives' stamp: 'di 9/23/97 12:54'!
+!StackInterpreterSimulator methodsFor: 'I/O primitives' stamp: 'di 9/23/1997 12:54'!
 primitiveMouseButtons
 	| buttons |
 	self pop: 1.
@@ -48977,13 +48977,13 @@ ioMicroMSecs
 	^ Time millisecondClockValue
 ! !
 
-!StackInterpreterSimulator methodsFor: 'I/O primitives support' stamp: 'jm 9/24/97 22:52'!
+!StackInterpreterSimulator methodsFor: 'I/O primitives support' stamp: 'jm 9/24/1997 22:52'!
 ioScreenSize
 	"Return the screen extent packed into 32 bits."
 
 	^ (displayForm width << 16) + displayForm height! !
 
-!StackInterpreterSimulator methodsFor: 'I/O primitives support' stamp: 'jm 9/24/97 22:52'!
+!StackInterpreterSimulator methodsFor: 'I/O primitives support' stamp: 'jm 9/24/1997 22:52'!
 ioSeconds
 	"Return the value of the second clock."
 
@@ -52666,7 +52666,7 @@ self flag: #Dan.
 		ifTrue:[^slots]
 		ifFalse:[^slots * 4]! !
 
-!ObjectMemory methodsFor: 'object format' stamp: 'ar (auto pragmas dtl 2010-09-26) 3/21/98 02:37'!
+!ObjectMemory methodsFor: 'object format' stamp: 'ar (auto pragmas dtl 2010-09-26) 3/21/1998 02:37'!
 fixedFieldsOf: oop format: fmt length: wordLength
 "
 	NOTE: This code supports the backward-compatible extension to 8 bits of instSize.
@@ -58013,7 +58013,7 @@ nextShortFrom: aStream swap: swapFlag
 		ifTrue: [(aShort bitShift: -8) + ((aShort bitAnd: 16rFF) bitShift: 8)]
 		ifFalse: [aShort]! !
 
-!NewObjectMemorySimulator methodsFor: 'initialization' stamp: 'di 10/2/97 00:32'!
+!NewObjectMemorySimulator methodsFor: 'initialization' stamp: 'di 10/2/1997 00:32'!
 reverseBytesFrom: begin to: end
 	"Byte-swap the given range of memory (not inclusive!!)."
 	| wordAddr |
@@ -78691,7 +78691,7 @@ initializeDitherTables
 		15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30).
 	dither8Lookup := CArrayAccessor on: (Array new: 4096).! !
 
-!BitBltSimulator methodsFor: 'simulation' stamp: 'di 12/30/97 11:07'!
+!BitBltSimulator methodsFor: 'simulation' stamp: 'di 12/30/1997 11:07'!
 mergeFn: arg1 with: arg2
 	^ self perform: (opTable at: combinationRule+1) with: arg1 with: arg2! !
 

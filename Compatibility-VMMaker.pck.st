@@ -1,6 +1,6 @@
 'From Cuis 6.0 [latest update: #5559] on 30 November 2022 at 8:54:18 am'!
 'Description '!
-!provides: 'Compatibility-VMMaker' 1 6!
+!provides: 'Compatibility-VMMaker' 1 7!
 SystemOrganization addCategory: 'Compatibility-VMMaker'!
 
 
@@ -1113,15 +1113,15 @@ primWrite: id from: stringOrByteArray startingAt: startIndex count: count
 			ifTrue: [ 'File [', name, '] is closed' ]
 			ifFalse: [ 'File [', name, '] write failed' ])! !
 
-!StandardFileStream methodsFor: 'registry' stamp: 'ar 3/21/98 17:23'!
+!StandardFileStream methodsFor: 'registry' stamp: 'ar 3/21/1998 17:23'!
 register
 	^self class register: self! !
 
-!StandardFileStream methodsFor: 'registry' stamp: 'ar 3/21/98 17:23'!
+!StandardFileStream methodsFor: 'registry' stamp: 'ar 3/21/1998 17:23'!
 unregister
 	^self class unregister: self! !
 
-!StandardFileStream methodsFor: 'finalization' stamp: 'ar 3/21/98 18:16'!
+!StandardFileStream methodsFor: 'finalization' stamp: 'ar 3/21/1998 18:16'!
 actAsExecutor
 	super actAsExecutor.
 	name := nil.! !
