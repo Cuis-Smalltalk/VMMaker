@@ -1,6 +1,6 @@
 'From Cuis 6.0 [latest update: #5559] on 30 November 2022 at 8:54:18 am'!
 'Description '!
-!provides: 'Compatibility-VMMaker' 1 7!
+!provides: 'Compatibility-VMMaker' 1 8!
 SystemOrganization addCategory: 'Compatibility-VMMaker'!
 
 
@@ -1443,13 +1443,7 @@ isCharacter
 
 !Character methodsFor: '*compatibility-VMMaker' stamp: 'jmv 9/6/2016 10:27:11'!
 value
-	^self numericValue! !
-
-!Character class methodsFor: '*compatibility-VMMaker' stamp: 'jmv 9/6/2016 10:26:47'!
-value: anInteger
-	"Answer the Character whose value is anInteger."
-
-	^ self numericValue: anInteger! !
+	^self codePoint! !
 
 !BlockClosure methodsFor: '*compatibility-VMMaker' stamp: 'bp 11/29/2014 17:29'!
 cull: firstArg
